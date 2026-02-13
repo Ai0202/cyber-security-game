@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { STAGES } from '../data';
 
-export default function StageSelect() {
+export default function StageSelect({ onStartGame }) {
   const [selectedStage, setSelectedStage] = useState(null);
 
   const getStageDescription = (id) => {
@@ -18,6 +18,45 @@ export default function StageSelect() {
 
   return (
     <div>
+      {/* ランサムウェア攻撃チェーン - メインゲーム */}
+      {onStartGame && (
+        <div
+          onClick={onStartGame}
+          style={{
+            padding: 20,
+            marginBottom: 20,
+            background: "linear-gradient(135deg, rgba(124,58,237,0.15), rgba(236,72,153,0.15))",
+            borderRadius: 14,
+            border: "1px solid rgba(124,58,237,0.3)",
+            cursor: "pointer",
+            textAlign: "center",
+            transition: "transform 0.2s",
+          }}
+        >
+          <div style={{ fontSize: 32, marginBottom: 8 }}>⚔️</div>
+          <div style={{ fontSize: 16, fontWeight: 800, color: "#a78bfa", marginBottom: 4 }}>
+            OPERATION: RANSOMWARE
+          </div>
+          <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
+            攻撃チェーンを体験する4フェーズゲーム
+          </div>
+          <div
+            style={{
+              marginTop: 12,
+              padding: "8px 24px",
+              background: "linear-gradient(135deg, #7c3aed, #ec4899)",
+              borderRadius: 8,
+              color: "white",
+              fontWeight: 700,
+              fontSize: 13,
+              display: "inline-block",
+            }}
+          >
+            プレイする →
+          </div>
+        </div>
+      )}
+
       <div
         style={{
           padding: "14px 16px",
