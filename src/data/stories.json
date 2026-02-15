@@ -1,0 +1,33 @@
+[
+  {
+    "id": "hospital-data-theft",
+    "title": "OPERATION: HOSPITAL BREACH",
+    "description": "病院の患者情報を盗み出せ",
+    "difficulty": "normal",
+    "context": {
+      "industry": "医療",
+      "targetOrg": "さくら総合病院",
+      "targetDescription": "地方の中規模総合病院。電子カルテシステムを導入して3年。ITスタッフは2名。",
+      "objective": "患者の個人情報データベースを暗号化し身代金を要求する"
+    },
+    "phases": [
+      {
+        "phaseId": "recon",
+        "componentPool": ["shoulder-hacking"],
+        "contextOverride": { "location": "病院の待合室" }
+      },
+      {
+        "phaseId": "credential",
+        "componentPool": ["phishing", "password-cracking"]
+      },
+      {
+        "phaseId": "intrusion",
+        "componentPool": ["network-intrusion"]
+      },
+      {
+        "phaseId": "objective",
+        "componentPool": ["ransomware"]
+      }
+    ]
+  }
+]

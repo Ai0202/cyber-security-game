@@ -1,0 +1,77 @@
+[
+  {
+    "id": "shoulder-hacking",
+    "name": "ショルダーハッキング",
+    "displayName": "SHOULDER HACKING",
+    "phaseId": "recon",
+    "description": "オフィスや公共の場でターゲットのPC画面・スマホ画面を覗き見して機密情報を盗む",
+    "difficulty": "easy",
+    "estimatedMinutes": 3,
+    "learningPoints": [
+      "プライバシーフィルターの重要性",
+      "公共の場でのPC操作時の注意",
+      "パスワードを付箋に書かない"
+    ]
+  },
+  {
+    "id": "password-cracking",
+    "name": "パスワードクラッキング",
+    "displayName": "PASSWORD CRACKING",
+    "phaseId": "credential",
+    "description": "ターゲットの弱いパスワードを推測・辞書攻撃・総当たりで突破する",
+    "difficulty": "normal",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "個人情報から推測可能なパスワードの危険性",
+      "パスワードの長さ・複雑さと突破時間の関係",
+      "パスワードマネージャーの推奨",
+      "二要素認証の重要性"
+    ]
+  },
+  {
+    "id": "phishing",
+    "name": "フィッシング攻撃",
+    "displayName": "PHISHING",
+    "phaseId": "credential",
+    "description": "ターゲットを騙すフィッシングメールを作成し、認証情報を窃取する",
+    "difficulty": "normal",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "フィッシングメールの典型的な特徴",
+      "メールアドレスのドメイン確認方法",
+      "URLの確認方法（ホバーして実際のリンク先を見る）",
+      "「緊急」「至急」に惑わされない心構え",
+      "不審メールの報告フロー"
+    ]
+  },
+  {
+    "id": "network-intrusion",
+    "name": "ネットワーク侵入",
+    "displayName": "NETWORK INTRUSION",
+    "phaseId": "intrusion",
+    "description": "入手した認証情報で企業ネットワークに侵入し、内部偵察と権限昇格を行う",
+    "difficulty": "hard",
+    "estimatedMinutes": 7,
+    "learningPoints": [
+      "ネットワーク分離の重要性",
+      "最小権限の原則",
+      "不審なアクセスの検知方法",
+      "アクセスログ監視の重要性"
+    ]
+  },
+  {
+    "id": "ransomware",
+    "name": "ランサムウェア展開",
+    "displayName": "RANSOMWARE",
+    "phaseId": "objective",
+    "description": "侵入したネットワーク上でランサムウェアを展開し、データを暗号化して身代金を要求する",
+    "difficulty": "hard",
+    "estimatedMinutes": 7,
+    "learningPoints": [
+      "ランサムウェア攻撃の全体像（キルチェーン）",
+      "バックアップの重要性（3-2-1ルール）",
+      "インシデント対応の基本フロー",
+      "身代金を払ってはいけない理由"
+    ]
+  }
+]
