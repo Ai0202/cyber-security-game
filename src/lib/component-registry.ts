@@ -22,9 +22,14 @@ const PasswordCracking = dynamic(
   () => import('@/components/game/components/PasswordCracking')
 );
 
+const ShoulderHacking = dynamic(
+  () => import('@/components/game/components/ShoulderHacking')
+);
+
 const componentMap: Record<string, ComponentType<GameComponentProps>> = {
   phishing: Phishing,
   'password-cracking': PasswordCracking,
+  'shoulder-hacking': ShoulderHacking,
 };
 
 export function getGameComponent(
