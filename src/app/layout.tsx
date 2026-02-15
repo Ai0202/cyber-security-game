@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_JP, JetBrains_Mono } from "next/font/google";
+import { GameProvider } from "@/contexts/GameContext";
 import "./globals.css";
 
 const notoSansJP = Noto_Sans_JP({
@@ -30,7 +31,7 @@ export default function RootLayout({
       <body
         className={`${notoSansJP.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
-        {children}
+        <GameProvider>{children}</GameProvider>
       </body>
     </html>
   );
