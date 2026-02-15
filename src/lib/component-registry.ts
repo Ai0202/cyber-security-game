@@ -30,11 +30,16 @@ const NetworkIntrusion = dynamic(
   () => import('@/components/game/components/NetworkIntrusion')
 );
 
+const Ransomware = dynamic(
+  () => import('@/components/game/components/Ransomware')
+);
+
 const componentMap: Record<string, ComponentType<GameComponentProps>> = {
   phishing: Phishing,
   'password-cracking': PasswordCracking,
   'shoulder-hacking': ShoulderHacking,
   'network-intrusion': NetworkIntrusion,
+  ransomware: Ransomware,
 };
 
 export function getGameComponent(
