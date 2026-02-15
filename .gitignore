@@ -25,5 +25,12 @@ dist/
 # Worktrees
 .worktrees/
 
+# Terraform
+*.tfvars
+!*.tfvars.example
+.terraform/
+*.tfstate
+*.tfstate.backup
+
 # Next.js
 .next/
