@@ -109,7 +109,7 @@ export async function POST(
     }
 
     // Handle regular game actions
-    const systemPrompt = `あなたはサイバーセキュリティ教育ゲーム「CyberGuardians」のゲームマスターです。
+    const systemPrompt = `あなたはサイバーセキュリティ教育ゲーム「せきゅトレ」のゲームマスターです。
 プレイヤーは攻撃者側を体験して防御を学びます。
 フェーズ: ${phaseId}
 コンポーネント: ${parsed.componentId}

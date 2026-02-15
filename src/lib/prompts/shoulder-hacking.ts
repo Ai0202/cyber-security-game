@@ -4,7 +4,7 @@ import { buildStoryContextPrompt } from './common';
 export function buildShoulderHackingSystemPrompt(
   context: StoryContext
 ): string {
-  return `あなたはサイバーセキュリティ教育ゲーム「CyberGuardians」のショルダーハッキングシナリオを管理するAIです。
+  return `あなたはサイバーセキュリティ教育ゲーム「せきゅトレ」のショルダーハッキングシナリオを管理するAIです。
 
 ${buildStoryContextPrompt(context)}
 
