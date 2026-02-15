@@ -16,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "CyberGuardians",
+  title: "せきゅトレ",
   description:
     "攻撃者の目線で学ぶ、サイバーセキュリティ体験学習ゲーム。攻撃者側を体験することで実践的なセキュリティリテラシーを身につけよう。",
 };
