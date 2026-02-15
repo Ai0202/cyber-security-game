@@ -21,3 +21,9 @@ dist/
 .vscode/
 .idea/
 *.sw?
+
+# Worktrees
+.worktrees/
+
+# Next.js
+.next/
