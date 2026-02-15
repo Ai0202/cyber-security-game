@@ -1,0 +1,197 @@
+openapi: "3.0.3"
+info:
+  title: CyberGuardians API
+  version: "1.0.0"
+  description: CyberGuardians ゲーム用内部API。Gemini APIへのプロキシとして機能。
+
+servers:
+  - url: /api
+
+paths:
+  /gemini/generate-scenario:
+    post:
+      summary: ステージシナリオを動的生成
+      description: |
+        指定されたステージIDに基づき、Gemini APIでゲームシナリオを動的生成する。
+        毎回異なるシナリオが返される。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stageId
+              properties:
+                stageId:
+                  type: string
+                  enum:
+                    - shoulder-hacking
+                    - password-cracking
+                    - phishing
+                    - ransomware
+                difficulty:
+                  type: string
+                  enum: [easy, normal, hard]
+                  default: normal
+      responses:
+        "200":
+          description: 生成されたシナリオ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScenarioResponse"
+
+  /gemini/evaluate:
+    post:
+      summary: プレイヤーの行動を評価
+      description: |
+        プレイヤーのゲーム内アクションをGemini APIで評価し、スコアとフィードバックを返す。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stageId
+                - actions
+              properties:
+                stageId:
+                  type: string
+                actions:
+                  type: object
+                  description: ステージ固有のアクションデータ
+                scenario:
+                  type: object
+                  description: 元のシナリオデータ（コンテキスト用）
+      responses:
+        "200":
+          description: 評価結果
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationResponse"
+
+  /gemini/feedback:
+    post:
+      summary: AIフィードバックをストリーミング生成
+      description: |
+        結果画面用の詳細フィードバックをストリーミングで返す。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stageId
+                - score
+                - actions
+              properties:
+                stageId:
+                  type: string
+                score:
+                  type: number
+                actions:
+                  type: object
+      responses:
+        "200":
+          description: ストリーミングフィードバック
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /gemini/chat:
+    post:
+      summary: ソーシャルエンジニアリング対話
+      description: |
+        Stage 4（ランサムウェア）のフェーズ内で、
+        ターゲットとのチャット対話をシミュレーションする。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - stageId
+                - phase
+                - message
+                - conversationHistory
+              properties:
+                stageId:
+                  type: string
+                phase:
+                  type: string
+                message:
+                  type: string
+                conversationHistory:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      role:
+                        type: string
+                        enum: [user, assistant]
+                      content:
+                        type: string
+      responses:
+        "200":
+          description: AI応答
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  reply:
+                    type: string
+                  targetReaction:
+                    type: string
+                    description: ターゲットの内心の反応（疑惑度など）
+
+components:
+  schemas:
+    ScenarioResponse:
+      type: object
+      properties:
+        stageId:
+          type: string
+        scenario:
+          type: object
+          description: ステージ固有のシナリオデータ（形式はステージにより異なる）
+        metadata:
+          type: object
+          properties:
+            generatedAt:
+              type: string
+              format: date-time
+
+    EvaluationResponse:
+      type: object
+      properties:
+        score:
+          type: number
+          minimum: 0
+          maximum: 100
+        rank:
+          type: string
+          enum: [S, A, B, C, D]
+        breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              points:
+                type: number
+              maxPoints:
+                type: number
+              comment:
+                type: string
+        learningPoints:
+          type: array
+          items:
+            type: string
