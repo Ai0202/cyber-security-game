@@ -14,13 +14,12 @@ const PlaceholderComponent = dynamic(
   () => import('@/components/game/components/PlaceholderComponent')
 );
 
+const Phishing = dynamic(
+  () => import('@/components/game/components/Phishing')
+);
+
 const componentMap: Record<string, ComponentType<GameComponentProps>> = {
-  // Components will be registered here as they are implemented
-  // 'shoulder-hacking': ShoulderHacking,
-  // 'password-cracking': PasswordCracking,
-  // 'phishing': Phishing,
-  // 'network-intrusion': NetworkIntrusion,
-  // 'ransomware': Ransomware,
+  phishing: Phishing,
 };
 
 export function getGameComponent(
