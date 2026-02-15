@@ -1,5 +1,6 @@
 import { stories, components, phases } from '@/lib/data';
 import StoryCard from '@/components/story/StoryCard';
+import RandomMissionCard from '@/components/story/RandomMissionCard';
 import NeonBadge from '@/components/ui/NeonBadge';
 import Link from 'next/link';
 
@@ -33,6 +34,7 @@ export default function Home() {
           {stories.map((story) => (
             <StoryCard key={story.id} story={story} />
           ))}
+          <RandomMissionCard />
         </div>
       </section>
 

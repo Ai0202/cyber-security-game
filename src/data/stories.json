@@ -13,20 +13,20 @@
     "phases": [
       {
         "phaseId": "recon",
-        "componentPool": ["shoulder-hacking"],
+        "componentPool": ["recon_01", "recon_03", "recon_04"],
         "contextOverride": { "location": "病院の待合室" }
       },
       {
-        "phaseId": "credential",
-        "componentPool": ["phishing", "password-cracking"]
+        "phaseId": "access",
+        "componentPool": ["access_01", "access_03", "access_05"]
       },
       {
-        "phaseId": "intrusion",
-        "componentPool": ["network-intrusion"]
+        "phaseId": "lateral",
+        "componentPool": ["lateral_01", "lateral_02", "lateral_04"]
       },
       {
         "phaseId": "objective",
-        "componentPool": ["ransomware"]
+        "componentPool": ["objective_01", "objective_02"]
       }
     ]
   }

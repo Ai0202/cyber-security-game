@@ -1,38 +1,99 @@
 [
   {
-    "id": "shoulder-hacking",
-    "name": "ショルダーハッキング",
-    "displayName": "SHOULDER HACKING",
+    "id": "recon_01",
+    "name": "SNS調査",
+    "displayName": "SOCIAL MEDIA RECON",
     "phaseId": "recon",
-    "description": "オフィスや公共の場でターゲットのPC画面・スマホ画面を覗き見して機密情報を盗む",
+    "description": "ターゲットのSNSプロフィールから有用な個人情報を収集する",
     "difficulty": "easy",
     "estimatedMinutes": 3,
     "learningPoints": [
-      "プライバシーフィルターの重要性",
-      "公共の場でのPC操作時の注意",
-      "パスワードを付箋に書かない"
-    ]
+      "SNSの公開情報がどれだけ攻撃に悪用されるか",
+      "プライバシー設定の重要性",
+      "個人情報の公開範囲を見直す必要性"
+    ],
+    "tags": ["OSINT", "ソーシャルエンジニアリング", "情報収集"],
+    "attacker_action": "ターゲットのSNSアカウントを調査し、パスワード推測に使える情報を収集する",
+    "victim_experience": "日常的にSNSに投稿している情報が攻撃者に利用される",
+    "vulnerability": "SNSでの過度な個人情報公開"
   },
   {
-    "id": "password-cracking",
-    "name": "パスワードクラッキング",
-    "displayName": "PASSWORD CRACKING",
-    "phaseId": "credential",
-    "description": "ターゲットの弱いパスワードを推測・辞書攻撃・総当たりで突破する",
+    "id": "recon_02",
+    "name": "ゴミ箱漁り",
+    "displayName": "DUMPSTER DIVING",
+    "phaseId": "recon",
+    "description": "ターゲット組織のゴミ箱から機密情報を含む廃棄物を探す",
+    "difficulty": "easy",
+    "estimatedMinutes": 3,
+    "learningPoints": [
+      "書類のシュレッダー処理の重要性",
+      "クリアデスクポリシーの必要性",
+      "付箋メモやメモ用紙の適切な廃棄"
+    ],
+    "tags": ["物理セキュリティ", "情報収集", "廃棄物"],
+    "attacker_action": "組織のゴミ箱から廃棄された書類やメモを漁り、有用な情報を探す",
+    "victim_experience": "適切に廃棄されなかった文書から情報が漏洩する",
+    "vulnerability": "不適切な文書廃棄プロセス"
+  },
+  {
+    "id": "recon_03",
+    "name": "漏洩情報の検索",
+    "displayName": "CREDENTIAL LEAK SEARCH",
+    "phaseId": "recon",
+    "description": "過去のデータ漏洩事件で流出した認証情報をダークウェブで検索する",
+    "difficulty": "normal",
+    "estimatedMinutes": 4,
+    "learningPoints": [
+      "パスワードの使い回しの危険性",
+      "データ漏洩通知サービスの活用",
+      "定期的なパスワード変更の重要性"
+    ],
+    "tags": ["OSINT", "ダークウェブ", "漏洩情報"],
+    "attacker_action": "漏洩データベースでターゲットのメールアドレスを検索し、流出パスワードを取得する",
+    "victim_experience": "過去に利用していたサービスの情報漏洩により、現在のアカウントが危険にさらされる",
+    "vulnerability": "パスワードの使い回し・過去の漏洩情報"
+  },
+  {
+    "id": "recon_04",
+    "name": "企業サイト・求人情報の調査",
+    "displayName": "CORPORATE WEBSITE RECON",
+    "phaseId": "recon",
+    "description": "ターゲット企業の公開Webサイトや求人情報からシステム構成や担当者情報を収集する",
+    "difficulty": "easy",
+    "estimatedMinutes": 3,
+    "learningPoints": [
+      "公開情報から推測できるシステム構成の危険性",
+      "求人情報に技術スタックを詳細に書くリスク",
+      "担当者情報の公開範囲管理"
+    ],
+    "tags": ["OSINT", "企業情報", "技術スタック"],
+    "attacker_action": "企業サイト・求人票から使用技術やキーパーソンの情報を収集する",
+    "victim_experience": "採用活動や広報のために公開した情報が攻撃の足がかりにされる",
+    "vulnerability": "公開情報における技術詳細の過度な露出"
+  },
+  {
+    "id": "recon_05",
+    "name": "なりすまし電話による聞き出し",
+    "displayName": "PRETEXTING CALL",
+    "phaseId": "recon",
+    "description": "IT部門や取引先を装ってターゲットに電話し、機密情報を聞き出す",
     "difficulty": "normal",
     "estimatedMinutes": 5,
     "learningPoints": [
-      "個人情報から推測可能なパスワードの危険性",
-      "パスワードの長さ・複雑さと突破時間の関係",
-      "パスワードマネージャーの推奨",
-      "二要素認証の重要性"
-    ]
+      "電話での本人確認の重要性",
+      "社内の情報共有ルール",
+      "ソーシャルエンジニアリングの手口を知る"
+    ],
+    "tags": ["ソーシャルエンジニアリング", "なりすまし", "電話"],
+    "attacker_action": "IT部門を装って電話し、パスワードやシステム情報を聞き出す",
+    "victim_experience": "信頼できると思った相手に機密情報を教えてしまう",
+    "vulnerability": "電話での本人確認プロセスの欠如"
   },
   {
-    "id": "phishing",
-    "name": "フィッシング攻撃",
-    "displayName": "PHISHING",
-    "phaseId": "credential",
+    "id": "access_01",
+    "name": "フィッシングメール",
+    "displayName": "PHISHING EMAIL",
+    "phaseId": "access",
     "description": "ターゲットを騙すフィッシングメールを作成し、認証情報を窃取する",
     "difficulty": "normal",
     "estimatedMinutes": 5,
@@ -42,14 +103,113 @@
       "URLの確認方法（ホバーして実際のリンク先を見る）",
       "「緊急」「至急」に惑わされない心構え",
       "不審メールの報告フロー"
-    ]
+    ],
+    "tags": ["フィッシング", "メール", "ソーシャルエンジニアリング"],
+    "attacker_action": "正規のメールを装ったフィッシングメールを作成して送信する",
+    "victim_experience": "一見本物のメールに騙されてリンクをクリックし認証情報を入力してしまう",
+    "vulnerability": "メール送信者の検証不足・セキュリティ意識の欠如"
   },
   {
-    "id": "network-intrusion",
-    "name": "ネットワーク侵入",
-    "displayName": "NETWORK INTRUSION",
-    "phaseId": "intrusion",
-    "description": "入手した認証情報で企業ネットワークに侵入し、内部偵察と権限昇格を行う",
+    "id": "access_02",
+    "name": "スミッシング",
+    "displayName": "SMISHING",
+    "phaseId": "access",
+    "description": "SMS（ショートメッセージ）でフィッシングリンクを送り、認証情報を窃取する",
+    "difficulty": "normal",
+    "estimatedMinutes": 4,
+    "learningPoints": [
+      "SMSフィッシングの典型的パターン（宅配不在、銀行通知等）",
+      "短縮URLの危険性",
+      "SMS内のリンクは基本的にクリックしない",
+      "公式アプリや公式サイトから直接確認する習慣"
+    ],
+    "tags": ["フィッシング", "SMS", "スミッシング"],
+    "attacker_action": "宅配不在通知等を装ったSMSを送信し、偽サイトに誘導する",
+    "victim_experience": "宅配業者からの通知と思いSMSのリンクをタップしてしまう",
+    "vulnerability": "SMSの送信元偽装の容易さ・ユーザーの不注意"
+  },
+  {
+    "id": "access_03",
+    "name": "ショルダーサーフィン",
+    "displayName": "SHOULDER SURFING",
+    "phaseId": "access",
+    "description": "オフィスや公共の場でターゲットのPC画面・スマホ画面を覗き見して認証情報を盗む",
+    "difficulty": "easy",
+    "estimatedMinutes": 3,
+    "learningPoints": [
+      "プライバシーフィルターの重要性",
+      "公共の場でのPC操作時の注意",
+      "パスワードを付箋に書かない",
+      "画面ロックの習慣化"
+    ],
+    "tags": ["物理セキュリティ", "覗き見", "パスワード"],
+    "attacker_action": "オフィスや公共の場でターゲットの画面を覗き見し、パスワード入力を観察する",
+    "victim_experience": "気づかないうちに画面を覗き見され認証情報が盗まれる",
+    "vulnerability": "物理的なセキュリティ意識の欠如"
+  },
+  {
+    "id": "access_04",
+    "name": "偽Wi-Fiアクセスポイント",
+    "displayName": "EVIL TWIN WI-FI",
+    "phaseId": "access",
+    "description": "偽のWi-Fiアクセスポイントを設置し、接続したユーザーの通信を傍受する",
+    "difficulty": "normal",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "公衆Wi-Fiのリスク",
+      "VPN利用の重要性",
+      "HTTPS通信の確認",
+      "自動接続設定の危険性"
+    ],
+    "tags": ["ネットワーク", "Wi-Fi", "中間者攻撃"],
+    "attacker_action": "正規のWi-Fiに似た名前の偽APを設置し、接続者の通信を傍受する",
+    "victim_experience": "いつもの無料Wi-Fiに接続したつもりが偽APで通信を盗聴される",
+    "vulnerability": "Wi-Fi接続時のセキュリティ確認不足"
+  },
+  {
+    "id": "access_05",
+    "name": "パスワードリスト攻撃",
+    "displayName": "CREDENTIAL STUFFING",
+    "phaseId": "access",
+    "description": "漏洩したパスワードリストを使って標的のアカウントに不正ログインを試みる",
+    "difficulty": "normal",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "個人情報から推測可能なパスワードの危険性",
+      "パスワードの長さ・複雑さと突破時間の関係",
+      "パスワードマネージャーの推奨",
+      "二要素認証の重要性"
+    ],
+    "tags": ["パスワード", "ブルートフォース", "認証"],
+    "attacker_action": "漏洩パスワードリストや個人情報を基にパスワードを推測・試行する",
+    "victim_experience": "使い回していたパスワードで別のサービスにも不正ログインされる",
+    "vulnerability": "パスワードの使い回し・弱いパスワード"
+  },
+  {
+    "id": "access_06",
+    "name": "マルウェア添付メール",
+    "displayName": "MALWARE ATTACHMENT",
+    "phaseId": "access",
+    "description": "業務文書に偽装したマルウェアファイルをメールで送付し、バックドアを設置する",
+    "difficulty": "hard",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "添付ファイルの拡張子確認の重要性",
+      "マクロ有効化の危険性",
+      "サンドボックスでのファイル検証",
+      "不審な添付ファイルの報告フロー"
+    ],
+    "tags": ["マルウェア", "メール", "添付ファイル"],
+    "attacker_action": "業務文書に偽装したマルウェアを添付したメールを送信する",
+    "victim_experience": "業務関連の文書だと思いファイルを開いてマルウェアに感染する",
+    "vulnerability": "添付ファイルの検証不足・マクロ実行の許可"
+  },
+  {
+    "id": "lateral_01",
+    "name": "管理者権限の奪取",
+    "displayName": "PRIVILEGE ESCALATION",
+    "phaseId": "lateral",
+    "description": "入手した認証情報で企業ネットワークに侵入し、管理者権限への昇格を目指す",
     "difficulty": "hard",
     "estimatedMinutes": 7,
     "learningPoints": [
@@ -57,12 +217,73 @@
       "最小権限の原則",
       "不審なアクセスの検知方法",
       "アクセスログ監視の重要性"
-    ]
+    ],
+    "tags": ["権限昇格", "ネットワーク", "Active Directory"],
+    "attacker_action": "侵入したネットワーク内でサービスやシステムの脆弱性を利用して管理者権限を取得する",
+    "victim_experience": "一般ユーザーアカウントの侵害から管理者権限まで奪取される",
+    "vulnerability": "過剰な権限設定・パッチ未適用のシステム"
   },
   {
-    "id": "ransomware",
-    "name": "ランサムウェア展開",
-    "displayName": "RANSOMWARE",
+    "id": "lateral_02",
+    "name": "社内の別端末への横展開",
+    "displayName": "LATERAL MOVEMENT",
+    "phaseId": "lateral",
+    "description": "感染した端末から社内ネットワークの他の端末やサーバーに移動する",
+    "difficulty": "hard",
+    "estimatedMinutes": 7,
+    "learningPoints": [
+      "ネットワークセグメンテーションの重要性",
+      "端末間の不要な通信の遮断",
+      "EDR（エンドポイント検知・対応）の導入",
+      "異常通信の検知"
+    ],
+    "tags": ["横展開", "ネットワーク", "Pass the Hash"],
+    "attacker_action": "感染端末の認証情報を再利用して他の端末やサーバーに侵入する",
+    "victim_experience": "1台の感染が社内ネットワーク全体に拡大する",
+    "vulnerability": "ネットワーク分離の不備・認証情報のキャッシュ"
+  },
+  {
+    "id": "lateral_03",
+    "name": "メールアカウントの乗っ取り",
+    "displayName": "EMAIL ACCOUNT COMPROMISE",
+    "phaseId": "lateral",
+    "description": "乗っ取ったメールアカウントから組織の内部情報や重要な連絡先を収集する",
+    "difficulty": "normal",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "メールアカウントの二要素認証",
+      "不審なログインアラートの確認",
+      "メールの転送ルール設定の定期確認",
+      "機密情報をメールで送信しない"
+    ],
+    "tags": ["メール", "アカウント乗っ取り", "情報収集"],
+    "attacker_action": "乗っ取ったメールアカウントで受信トレイを探索し、重要情報を収集する",
+    "victim_experience": "メールアカウントが乗っ取られ、組織の内部情報が流出する",
+    "vulnerability": "メールアカウントのセキュリティ設定不備"
+  },
+  {
+    "id": "lateral_04",
+    "name": "ファイルサーバー・データベースの探索",
+    "displayName": "DATA DISCOVERY",
+    "phaseId": "lateral",
+    "description": "社内のファイルサーバーやデータベースを探索し、高価値のデータを特定する",
+    "difficulty": "normal",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "データ分類とアクセス制御の重要性",
+      "共有フォルダの権限管理",
+      "データベースの暗号化",
+      "不要なデータの定期的な削除"
+    ],
+    "tags": ["データ探索", "ファイルサーバー", "データベース"],
+    "attacker_action": "共有フォルダやデータベースを探索し、窃取すべき高価値データを特定する",
+    "victim_experience": "アクセス制御が不十分で機密データに簡単にアクセスされる",
+    "vulnerability": "過度に緩いファイル共有権限・データ分類の未実施"
+  },
+  {
+    "id": "objective_01",
+    "name": "ランサムウェアによる暗号化",
+    "displayName": "RANSOMWARE ENCRYPTION",
     "phaseId": "objective",
     "description": "侵入したネットワーク上でランサムウェアを展開し、データを暗号化して身代金を要求する",
     "difficulty": "hard",
@@ -72,6 +293,67 @@
       "バックアップの重要性（3-2-1ルール）",
       "インシデント対応の基本フロー",
       "身代金を払ってはいけない理由"
-    ]
+    ],
+    "tags": ["ランサムウェア", "暗号化", "身代金"],
+    "attacker_action": "ネットワーク全体にランサムウェアを展開し、データを暗号化して身代金を要求する",
+    "victim_experience": "ある日突然全てのファイルが暗号化され、身代金を要求される",
+    "vulnerability": "バックアップ不足・インシデント対応体制の未整備"
+  },
+  {
+    "id": "objective_02",
+    "name": "個人情報・機密データの持ち出し",
+    "displayName": "DATA EXFILTRATION",
+    "phaseId": "objective",
+    "description": "標的のデータを選別し、検知されにくい方法で外部に持ち出す",
+    "difficulty": "hard",
+    "estimatedMinutes": 7,
+    "learningPoints": [
+      "DLP（データ漏洩防止）の重要性",
+      "外部へのデータ送信の監視",
+      "暗号化通信の悪用リスク",
+      "USB等の外部デバイス制御"
+    ],
+    "tags": ["データ持ち出し", "DLP", "外部送信"],
+    "attacker_action": "機密データを選別し、クラウドストレージや暗号化通信で外部に送信する",
+    "victim_experience": "気づかないうちに大量の顧客データや機密情報が外部に流出する",
+    "vulnerability": "データ流出検知の不備・外部通信の監視不足"
+  },
+  {
+    "id": "objective_03",
+    "name": "ビジネスメール詐欺",
+    "displayName": "BUSINESS EMAIL COMPROMISE",
+    "phaseId": "objective",
+    "description": "乗っ取った経営者のメールアカウントから偽の振込指示を送り、金銭を詐取する",
+    "difficulty": "normal",
+    "estimatedMinutes": 5,
+    "learningPoints": [
+      "送金指示の二重確認（電話確認等）",
+      "メールアカウント乗っ取りの兆候",
+      "経営者詐称メールのパターン",
+      "振込先変更依頼への慎重な対応"
+    ],
+    "tags": ["BEC", "ビジネスメール詐欺", "振込詐欺"],
+    "attacker_action": "経営者のメールから経理担当者に偽の送金指示を送る",
+    "victim_experience": "上司からの緊急の振込指示に従い、攻撃者の口座に送金してしまう",
+    "vulnerability": "送金プロセスの確認手順の不備"
+  },
+  {
+    "id": "objective_04",
+    "name": "二重恐喝",
+    "displayName": "DOUBLE EXTORTION",
+    "phaseId": "objective",
+    "description": "データを暗号化すると同時に窃取したデータの公開をちらつかせて二重に恐喝する",
+    "difficulty": "hard",
+    "estimatedMinutes": 7,
+    "learningPoints": [
+      "二重恐喝型ランサムウェアの脅威",
+      "データ暗号化だけでは防げない情報漏洩",
+      "インシデント発生時の広報・法務対応",
+      "サイバー保険の検討"
+    ],
+    "tags": ["二重恐喝", "ランサムウェア", "データリーク"],
+    "attacker_action": "データを暗号化した上で、窃取済みデータのサンプルをリークサイトに公開して脅迫する",
+    "victim_experience": "身代金を払わなければデータが公開されるという二重の脅迫を受ける",
+    "vulnerability": "データの暗号化・セグメンテーション不足"
   }
 ]

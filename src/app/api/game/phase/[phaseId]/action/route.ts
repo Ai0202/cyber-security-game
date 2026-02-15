@@ -25,6 +25,10 @@ import {
   buildRansomwareSystemPrompt,
   buildRansomwareInitPrompt,
 } from '@/lib/prompts/ransomware';
+import {
+  buildGenericSystemPrompt,
+  buildGenericInitPrompt,
+} from '@/lib/prompts/generic';
 import type { StoryContext, PhaseResult } from '@/types';
 
 const storyContextSchema = z.object({
@@ -46,24 +50,25 @@ type InitPromptBuilder = {
   user: () => string;
 };
 
+// Map new component IDs to specific prompt builders (adapted from old components)
 const initPromptBuilders: Record<string, InitPromptBuilder> = {
-  'shoulder-hacking': {
+  access_03: {
     system: buildShoulderHackingSystemPrompt,
     user: buildShoulderHackingInitPrompt,
   },
-  'password-cracking': {
+  access_05: {
     system: buildPasswordCrackingSystemPrompt,
     user: buildPasswordCrackingInitPrompt,
   },
-  phishing: {
+  access_01: {
     system: buildPhishingSystemPrompt,
     user: buildPhishingInitPrompt,
   },
-  'network-intrusion': {
+  lateral_01: {
     system: buildNetworkIntrusionSystemPrompt,
     user: buildNetworkIntrusionInitPrompt,
   },
-  ransomware: {
+  objective_01: {
     system: buildRansomwareSystemPrompt,
     user: buildRansomwareInitPrompt,
   },
@@ -74,15 +79,14 @@ async function handleInitAction(
   storyContext: StoryContext,
 ) {
   const builder = initPromptBuilders[componentId];
-  if (!builder) {
-    return NextResponse.json(
-      { error: `Unknown component: ${componentId}` },
-      { status: 400 }
-    );
-  }
 
-  const systemPrompt = builder.system(storyContext);
-  const userPrompt = builder.user();
+  // Use specific prompts if available, otherwise use generic
+  const systemPrompt = builder
+    ? builder.system(storyContext)
+    : buildGenericSystemPrompt(componentId, storyContext);
+  const userPrompt = builder
+    ? builder.user()
+    : buildGenericInitPrompt(componentId);
 
   const response = await generateContent(systemPrompt, userPrompt);
   const result = parseJsonResponse(response);
