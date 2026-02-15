@@ -18,8 +18,13 @@ const Phishing = dynamic(
   () => import('@/components/game/components/Phishing')
 );
 
+const PasswordCracking = dynamic(
+  () => import('@/components/game/components/PasswordCracking')
+);
+
 const componentMap: Record<string, ComponentType<GameComponentProps>> = {
   phishing: Phishing,
+  'password-cracking': PasswordCracking,
 };
 
 export function getGameComponent(
