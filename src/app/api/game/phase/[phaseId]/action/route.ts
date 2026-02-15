@@ -5,19 +5,90 @@ import {
   buildStoryContextPrompt,
   buildPhaseContextPrompt,
 } from '@/lib/prompts/common';
+import {
+  buildShoulderHackingSystemPrompt,
+  buildShoulderHackingInitPrompt,
+} from '@/lib/prompts/shoulder-hacking';
+import {
+  buildPasswordCrackingSystemPrompt,
+  buildPasswordCrackingInitPrompt,
+} from '@/lib/prompts/password-cracking';
+import {
+  buildPhishingSystemPrompt,
+  buildPhishingInitPrompt,
+} from '@/lib/prompts/phishing';
+import {
+  buildNetworkIntrusionSystemPrompt,
+  buildNetworkIntrusionInitPrompt,
+} from '@/lib/prompts/network-intrusion';
+import {
+  buildRansomwareSystemPrompt,
+  buildRansomwareInitPrompt,
+} from '@/lib/prompts/ransomware';
 import type { StoryContext, PhaseResult } from '@/types';
+
+const storyContextSchema = z.object({
+  industry: z.string(),
+  targetOrg: z.string(),
+  targetDescription: z.string(),
+  objective: z.string(),
+});
 
 const requestSchema = z.object({
   componentId: z.string(),
-  action: z.record(z.unknown()),
-  storyContext: z.object({
-    industry: z.string(),
-    targetOrg: z.string(),
-    targetDescription: z.string(),
-    objective: z.string(),
-  }),
+  action: z.union([z.literal('init'), z.record(z.unknown())]),
+  storyContext: storyContextSchema,
   previousResults: z.array(z.unknown()).optional(),
 });
+
+type InitPromptBuilder = {
+  system: (ctx: StoryContext) => string;
+  user: () => string;
+};
+
+const initPromptBuilders: Record<string, InitPromptBuilder> = {
+  'shoulder-hacking': {
+    system: buildShoulderHackingSystemPrompt,
+    user: buildShoulderHackingInitPrompt,
+  },
+  'password-cracking': {
+    system: buildPasswordCrackingSystemPrompt,
+    user: buildPasswordCrackingInitPrompt,
+  },
+  phishing: {
+    system: buildPhishingSystemPrompt,
+    user: buildPhishingInitPrompt,
+  },
+  'network-intrusion': {
+    system: buildNetworkIntrusionSystemPrompt,
+    user: buildNetworkIntrusionInitPrompt,
+  },
+  ransomware: {
+    system: buildRansomwareSystemPrompt,
+    user: buildRansomwareInitPrompt,
+  },
+};
+
+async function handleInitAction(
+  componentId: string,
+  storyContext: StoryContext,
+) {
+  const builder = initPromptBuilders[componentId];
+  if (!builder) {
+    return NextResponse.json(
+      { error: `Unknown component: ${componentId}` },
+      { status: 400 }
+    );
+  }
+
+  const systemPrompt = builder.system(storyContext);
+  const userPrompt = builder.user();
+
+  const response = await generateContent(systemPrompt, userPrompt);
+  const result = parseJsonResponse(response);
+
+  return NextResponse.json(result);
+}
 
 export async function POST(
   request: Request,
@@ -32,6 +103,12 @@ export async function POST(
     const storyContext = parsed.storyContext as StoryContext;
     const previousResults = (parsed.previousResults ?? []) as PhaseResult[];
 
+    // Handle init action for scenario generation
+    if (parsed.action === 'init') {
+      return await handleInitAction(parsed.componentId, storyContext);
+    }
+
+    // Handle regular game actions
     const systemPrompt = `あなたはサイバーセキュリティ教育ゲーム「CyberGuardians」のゲームマスターです。
 プレイヤーは攻撃者側を体験して防御を学びます。
 フェーズ: ${phaseId}

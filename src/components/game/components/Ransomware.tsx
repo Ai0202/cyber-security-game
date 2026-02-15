@@ -16,9 +16,9 @@ interface FileItem {
   encrypted: boolean;
 }
 
-type Phase = 'select' | 'encrypting' | 'ransom' | 'done';
+type Phase = 'loading' | 'select' | 'encrypting' | 'ransom' | 'done';
 
-const fileList: FileItem[] = [
+const fallbackFiles: FileItem[] = [
   { id: '1', name: '患者情報DB.sql', type: 'patient', size: '2.4GB', importance: 'high', selected: false, encrypted: false },
   { id: '2', name: '電子カルテ_2024.dat', type: 'patient', size: '1.8GB', importance: 'high', selected: false, encrypted: false },
   { id: '3', name: '会計システム.db', type: 'financial', size: '800MB', importance: 'high', selected: false, encrypted: false },
@@ -40,12 +40,73 @@ const typeIcons: Record<string, string> = {
 export default function Ransomware({
   storyContext,
   previousContext,
+  phaseId,
+  componentId,
+  previousResults,
   onComplete,
 }: GameComponentProps) {
-  const [phase, setPhase] = useState<Phase>('select');
-  const [files, setFiles] = useState<FileItem[]>(fileList);
+  const [phase, setPhase] = useState<Phase>('loading');
+  const [files, setFiles] = useState<FileItem[]>(fallbackFiles);
   const [encryptionProgress, setEncryptionProgress] = useState(0);
   const [ransomNote, setRansomNote] = useState('');
+
+  // Fetch scenario from API on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchScenario() {
+      try {
+        const res = await fetch(`/api/game/phase/${phaseId}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            componentId,
+            action: 'init',
+            storyContext,
+            previousResults,
+          }),
+        });
+
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (data.files && Array.isArray(data.files)) {
+          const mapped: FileItem[] = data.files.map(
+            (f: { name: string; type: string; size: string; importance: string }, i: number) => ({
+              id: String(i + 1),
+              name: f.name,
+              type: (['patient', 'financial', 'system', 'backup', 'log'].includes(f.type) ? f.type : 'system') as FileItem['type'],
+              size: f.size || '1MB',
+              importance: (['high', 'medium', 'low'].includes(f.importance) ? f.importance : 'medium') as FileItem['importance'],
+              selected: false,
+              encrypted: false,
+            })
+          );
+
+          if (mapped.length > 0) {
+            setFiles(mapped);
+            setPhase('select');
+            return;
+          }
+        }
+
+        // Fallback
+        setFiles(fallbackFiles);
+        setPhase('select');
+      } catch {
+        if (cancelled) return;
+        setFiles(fallbackFiles);
+        setPhase('select');
+      }
+    }
+
+    fetchScenario();
+    return () => {
+      cancelled = true;
+    };
+  }, [storyContext, phaseId, componentId, previousResults]);
 
   const selectedFiles = files.filter((f) => f.selected);
   const hasBackup = selectedFiles.some((f) => f.type === 'backup');
@@ -158,6 +219,23 @@ export default function Ransomware({
     });
   };
 
+  if (phase === 'loading') {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
+          />
+          <p className="font-mono text-sm text-cyber-cyan">
+            LOADING SCENARIO...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-md px-4 py-6">
       <AnimatePresence mode="wait">
@@ -252,7 +330,7 @@ export default function Ransomware({
             <div className="mb-6 space-y-2">
               {files
                 .filter((f) => f.selected)
-                .map((file, i) => (
+                .map((file) => (
                   <motion.div
                     key={file.id}
                     initial={{ opacity: 0.3 }}

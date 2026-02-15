@@ -38,7 +38,7 @@ export default function AIFeedback({ feedback }: AIFeedbackProps) {
       <h3 className="mb-3 font-mono text-xs tracking-widest text-cyber-cyan">
         AI FEEDBACK
       </h3>
-      <div className="font-mono text-sm leading-relaxed text-gray-300">
+      <div className="whitespace-pre-wrap font-mono text-sm leading-relaxed text-gray-300">
         {displayedText}
         {!isComplete && (
           <motion.span

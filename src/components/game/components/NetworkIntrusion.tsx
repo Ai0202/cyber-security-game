@@ -15,9 +15,9 @@ interface NetworkNode {
   info: string;
 }
 
-type Phase = 'login' | 'explore' | 'escalate' | 'done';
+type Phase = 'loading' | 'login' | 'explore' | 'escalate' | 'done';
 
-const initialNodes: NetworkNode[] = [
+const fallbackNodes: NetworkNode[] = [
   {
     id: 'entry',
     name: '受付端末',
@@ -68,14 +68,47 @@ const initialNodes: NetworkNode[] = [
   },
 ];
 
-const nodePositions: Record<string, { x: number; y: number }> = {
-  entry: { x: 20, y: 50 },
-  fileserver: { x: 50, y: 25 },
-  mailserver: { x: 50, y: 75 },
-  'admin-pc': { x: 80, y: 30 },
-  firewall: { x: 80, y: 70 },
-  db: { x: 50, y: 50 },
-};
+const fallbackConnections = [
+  ['entry', 'db'],
+  ['entry', 'fileserver'],
+  ['entry', 'mailserver'],
+  ['db', 'admin-pc'],
+  ['db', 'firewall'],
+  ['fileserver', 'admin-pc'],
+  ['mailserver', 'firewall'],
+];
+
+function generatePositions(count: number): Record<string, { x: number; y: number }> {
+  if (count <= 6) {
+    // Use a predefined layout for small networks
+    const layouts: { x: number; y: number }[] = [
+      { x: 20, y: 50 },
+      { x: 50, y: 25 },
+      { x: 50, y: 75 },
+      { x: 80, y: 30 },
+      { x: 80, y: 70 },
+      { x: 50, y: 50 },
+    ];
+    const positions: Record<string, { x: number; y: number }> = {};
+    for (let i = 0; i < count; i++) {
+      positions[String(i)] = layouts[i] || { x: 20 + Math.random() * 60, y: 20 + Math.random() * 60 };
+    }
+    return positions;
+  }
+
+  // For larger networks, distribute in a grid-like pattern
+  const positions: Record<string, { x: number; y: number }> = {};
+  const cols = Math.ceil(Math.sqrt(count));
+  for (let i = 0; i < count; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
+    positions[String(i)] = {
+      x: 15 + (col / (cols - 1 || 1)) * 70,
+      y: 20 + (row / (Math.ceil(count / cols) - 1 || 1)) * 60,
+    };
+  }
+  return positions;
+}
 
 const nodeIcons: Record<string, string> = {
   workstation: '💻',
@@ -88,15 +121,106 @@ const nodeIcons: Record<string, string> = {
 export default function NetworkIntrusion({
   storyContext,
   previousContext,
+  phaseId,
+  componentId,
+  previousResults,
   onComplete,
 }: GameComponentProps) {
-  const [phase, setPhase] = useState<Phase>('login');
-  const [nodes, setNodes] = useState<NetworkNode[]>(initialNodes);
+  const [phase, setPhase] = useState<Phase>('loading');
+  const [nodes, setNodes] = useState<NetworkNode[]>(fallbackNodes);
+  const [connections, setConnections] = useState<string[][]>(fallbackConnections);
+  const [nodePositions, setNodePositions] = useState<Record<string, { x: number; y: number }>>({});
   const [selectedNode, setSelectedNode] = useState<NetworkNode | null>(null);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const [stealthLevel, setStealthLevel] = useState(100);
   const [accessLevel, setAccessLevel] = useState<'user' | 'admin'>('user');
   const terminalRef = useRef<HTMLDivElement>(null);
+
+  // Fetch scenario from API on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchScenario() {
+      try {
+        const res = await fetch(`/api/game/phase/${phaseId}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            componentId,
+            action: 'init',
+            storyContext,
+            previousResults,
+          }),
+        });
+
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (data.nodes && Array.isArray(data.nodes)) {
+          const mapped: NetworkNode[] = data.nodes.map(
+            (n: { id: string; name: string; type: string; os?: string; services?: string[] }, i: number) => ({
+              id: n.id || String(i),
+              name: n.name,
+              type: (['workstation', 'server', 'firewall', 'router', 'admin'].includes(n.type) ? n.type : 'server') as NetworkNode['type'],
+              explored: false,
+              compromised: false,
+              info: [n.os, n.services?.join(', ')].filter(Boolean).join(' / ') || n.name,
+            })
+          );
+
+          if (mapped.length > 0) {
+            setNodes(mapped);
+
+            // Build positions
+            const positions: Record<string, { x: number; y: number }> = {};
+            const generated = generatePositions(mapped.length);
+            mapped.forEach((node, i) => {
+              positions[node.id] = generated[String(i)];
+            });
+            setNodePositions(positions);
+
+            // Set connections
+            if (data.connections && Array.isArray(data.connections)) {
+              setConnections(
+                data.connections.map((c: { from: string; to: string }) => [c.from, c.to])
+              );
+            }
+
+            setPhase('login');
+            return;
+          }
+        }
+
+        // Fallback
+        useFallbackData();
+      } catch {
+        if (cancelled) return;
+        useFallbackData();
+      }
+    }
+
+    function useFallbackData() {
+      setNodes(fallbackNodes);
+      setConnections(fallbackConnections);
+      const positions: Record<string, { x: number; y: number }> = {
+        entry: { x: 20, y: 50 },
+        fileserver: { x: 50, y: 25 },
+        mailserver: { x: 50, y: 75 },
+        'admin-pc': { x: 80, y: 30 },
+        firewall: { x: 80, y: 70 },
+        db: { x: 50, y: 50 },
+      };
+      setNodePositions(positions);
+      setPhase('login');
+    }
+
+    fetchScenario();
+    return () => {
+      cancelled = true;
+    };
+  }, [storyContext, phaseId, componentId, previousResults]);
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -113,9 +237,11 @@ export default function NetworkIntrusion({
     addLine(cred ? `Using credentials from previous phase...` : 'Using default credentials...');
     addLine('[SUCCESS] ログイン成功 - 一般ユーザー権限');
     setPhase('explore');
-    setNodes((prev) =>
-      prev.map((n) => (n.id === 'entry' ? { ...n, explored: true, compromised: true } : n))
-    );
+    setNodes((prev) => {
+      const firstNode = prev[0];
+      if (!firstNode) return prev;
+      return prev.map((n) => (n.id === firstNode.id ? { ...n, explored: true, compromised: true } : n));
+    });
   };
 
   const handleExplore = (node: NetworkNode) => {
@@ -148,9 +274,10 @@ export default function NetworkIntrusion({
     setTimeout(() => {
       addLine('[SUCCESS] ドメイン管理者権限を取得！');
       setAccessLevel('admin');
+      // Find admin node and compromise it
       setNodes((prev) =>
         prev.map((n) =>
-          n.id === 'admin-pc' ? { ...n, compromised: true } : n
+          n.type === 'admin' ? { ...n, compromised: true } : n
         )
       );
       setStealthLevel((prev) => Math.max(0, prev - 20));
@@ -162,7 +289,7 @@ export default function NetworkIntrusion({
   const finishGame = () => {
     setPhase('done');
     const exploredCount = nodes.filter((n) => n.explored).length;
-    const isAdmin = accessLevel === 'admin' || true; // will be admin after escalate
+    const isAdmin = true; // will be admin after escalate
 
     const score = Math.min(100,
       20 + // initial login
@@ -218,6 +345,23 @@ export default function NetworkIntrusion({
       },
     });
   };
+
+  if (phase === 'loading') {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
+          />
+          <p className="font-mono text-sm text-cyber-cyan">
+            LOADING SCENARIO...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-md px-4 py-6">
@@ -276,17 +420,10 @@ export default function NetworkIntrusion({
             <div className="relative mb-4 aspect-[3/2] rounded-lg border border-white/10 bg-cyber-card">
               {/* Connection lines */}
               <svg className="absolute inset-0 h-full w-full">
-                {[
-                  ['entry', 'db'],
-                  ['entry', 'fileserver'],
-                  ['entry', 'mailserver'],
-                  ['db', 'admin-pc'],
-                  ['db', 'firewall'],
-                  ['fileserver', 'admin-pc'],
-                  ['mailserver', 'firewall'],
-                ].map(([from, to], i) => {
+                {connections.map(([from, to], i) => {
                   const fromPos = nodePositions[from];
                   const toPos = nodePositions[to];
+                  if (!fromPos || !toPos) return null;
                   return (
                     <line
                       key={i}
@@ -304,6 +441,7 @@ export default function NetworkIntrusion({
               {/* Nodes */}
               {nodes.map((node) => {
                 const pos = nodePositions[node.id];
+                if (!pos) return null;
                 return (
                   <motion.button
                     key={node.id}

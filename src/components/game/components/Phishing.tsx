@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { GameComponentProps } from '@/lib/component-registry';
 import CyberButton from '@/components/ui/CyberButton';
@@ -15,9 +15,9 @@ interface TargetInfo {
   personality: string;
 }
 
-type Phase = 'briefing' | 'compose' | 'sending' | 'result';
+type Phase = 'loading' | 'briefing' | 'compose' | 'sending' | 'result';
 
-const defaultTarget: TargetInfo = {
+const fallbackTarget: TargetInfo = {
   name: '田中太郎',
   position: '経理部長',
   department: '経理部',
@@ -28,10 +28,13 @@ const defaultTarget: TargetInfo = {
 
 export default function Phishing({
   storyContext,
+  phaseId,
+  componentId,
+  previousResults,
   onComplete,
 }: GameComponentProps) {
-  const [phase, setPhase] = useState<Phase>('briefing');
-  const [target] = useState<TargetInfo>(defaultTarget);
+  const [phase, setPhase] = useState<Phase>('loading');
+  const [target, setTarget] = useState<TargetInfo>(fallbackTarget);
 
   // Email form state
   const [senderName, setSenderName] = useState('');
@@ -41,6 +44,52 @@ export default function Phishing({
   const [linkUrl, setLinkUrl] = useState('');
 
   const [showPreview, setShowPreview] = useState(false);
+
+  // Fetch scenario from API on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchScenario() {
+      try {
+        const res = await fetch(`/api/game/phase/${phaseId}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            componentId,
+            action: 'init',
+            storyContext,
+            previousResults,
+          }),
+        });
+
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (data.target) {
+          setTarget({
+            name: data.target.name || fallbackTarget.name,
+            position: data.target.position || fallbackTarget.position,
+            department: data.target.department || fallbackTarget.department,
+            email: data.target.email || fallbackTarget.email,
+            recentActivity: data.target.recentActivity || fallbackTarget.recentActivity,
+            personality: data.target.personality || fallbackTarget.personality,
+          });
+        }
+
+        setPhase('briefing');
+      } catch {
+        if (cancelled) return;
+        setPhase('briefing');
+      }
+    }
+
+    fetchScenario();
+    return () => {
+      cancelled = true;
+    };
+  }, [storyContext, phaseId, componentId, previousResults]);
 
   const handleSend = () => {
     setPhase('sending');
@@ -143,6 +192,23 @@ export default function Phishing({
       });
     }, 2000);
   };
+
+  if (phase === 'loading') {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
+          />
+          <p className="font-mono text-sm text-cyber-cyan">
+            LOADING SCENARIO...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-md px-4 py-6">

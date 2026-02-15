@@ -18,61 +18,135 @@ interface HiddenInfo {
 
 const TIME_LIMIT = 30;
 
+const typeLabels: Record<string, string> = {
+  password: 'パスワード付箋',
+  email: 'メールアドレス',
+  personal: '個人情報',
+  business: '業務機密',
+};
+
+function generateFallbackItems(targetOrg: string): HiddenInfo[] {
+  return [
+    {
+      id: '1',
+      type: 'password',
+      label: 'パスワード付箋',
+      value: 'Pass1234!',
+      points: 30,
+      x: 15,
+      y: 25,
+      found: false,
+    },
+    {
+      id: '2',
+      type: 'email',
+      label: 'メールアドレス',
+      value: `admin@${targetOrg.charAt(0).toLowerCase()}hospital.jp`,
+      points: 20,
+      x: 60,
+      y: 40,
+      found: false,
+    },
+    {
+      id: '3',
+      type: 'personal',
+      label: '患者リスト',
+      value: '個人情報一覧が画面に表示',
+      points: 20,
+      x: 35,
+      y: 65,
+      found: false,
+    },
+    {
+      id: '4',
+      type: 'business',
+      label: '内部システムURL',
+      value: 'https://intra.hospital-local/admin',
+      points: 25,
+      x: 75,
+      y: 20,
+      found: false,
+    },
+  ];
+}
+
 export default function ShoulderHacking({
   storyContext,
+  phaseId,
+  componentId,
+  previousResults,
   onComplete,
 }: GameComponentProps) {
-  const [phase, setPhase] = useState<'intro' | 'playing' | 'done'>('intro');
+  const [phase, setPhase] = useState<'loading' | 'intro' | 'playing' | 'done'>(
+    'loading'
+  );
   const [timeLeft, setTimeLeft] = useState(TIME_LIMIT);
   const [items, setItems] = useState<HiddenInfo[]>([]);
   const [foundCount, setFoundCount] = useState(0);
 
-  // Generate hidden items based on story context
+  // Fetch scenario from API on mount
   useEffect(() => {
-    const generated: HiddenInfo[] = [
-      {
-        id: '1',
-        type: 'password',
-        label: 'パスワード付箋',
-        value: 'Pass1234!',
-        points: 30,
-        x: 15,
-        y: 25,
-        found: false,
-      },
-      {
-        id: '2',
-        type: 'email',
-        label: 'メールアドレス',
-        value: `admin@${storyContext.targetOrg.charAt(0).toLowerCase()}hospital.jp`,
-        points: 20,
-        x: 60,
-        y: 40,
-        found: false,
-      },
-      {
-        id: '3',
-        type: 'personal',
-        label: '患者リスト',
-        value: '個人情報一覧が画面に表示',
-        points: 20,
-        x: 35,
-        y: 65,
-        found: false,
-      },
-      {
-        id: '4',
-        type: 'business',
-        label: '内部システムURL',
-        value: 'https://intra.hospital-local/admin',
-        points: 25,
-        x: 75,
-        y: 20,
-        found: false,
-      },
-    ];
-    setItems(generated);
-  }, [storyContext]);
+    let cancelled = false;
+
+    async function fetchScenario() {
+      try {
+        const res = await fetch(`/api/game/phase/${phaseId}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            componentId,
+            action: 'init',
+            storyContext,
+            previousResults,
+          }),
+        });
+
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (data.screens && Array.isArray(data.screens)) {
+          const mapped: HiddenInfo[] = [];
+          let idCounter = 1;
+          for (const screen of data.screens) {
+            if (screen.hiddenInfo && Array.isArray(screen.hiddenInfo)) {
+              for (const info of screen.hiddenInfo) {
+                mapped.push({
+                  id: String(idCounter++),
+                  type: info.type || 'business',
+                  label: typeLabels[info.type] || info.type,
+                  value: info.value,
+                  points: info.points || 20,
+                  x: 10 + Math.random() * 75,
+                  y: 15 + Math.random() * 65,
+                  found: false,
+                });
+              }
+            }
+          }
+          if (mapped.length > 0) {
+            setItems(mapped);
+            setPhase('intro');
+            return;
+          }
+        }
+
+        // Fallback if response shape is unexpected
+        setItems(generateFallbackItems(storyContext.targetOrg));
+        setPhase('intro');
+      } catch {
+        if (cancelled) return;
+        setItems(generateFallbackItems(storyContext.targetOrg));
+        setPhase('intro');
+      }
+    }
+
+    fetchScenario();
+    return () => {
+      cancelled = true;
+    };
+  }, [storyContext, phaseId, componentId, previousResults]);
 
   // Timer
   useEffect(() => {
@@ -181,6 +255,23 @@ export default function ShoulderHacking({
     },
     [phase]
   );
+
+  if (phase === 'loading') {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
+          />
+          <p className="font-mono text-sm text-cyber-cyan">
+            LOADING SCENARIO...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-md px-4 py-6">

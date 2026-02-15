@@ -15,6 +15,23 @@ ${buildStoryContextPrompt(context)}
 レスポンスは必ず JSON 形式で返してください。`;
 }
 
+export function buildRansomwareInitPrompt(): string {
+  return `暗号化対象のファイル一覧を生成してください。以下の JSON 形式で返してください:
+{
+  "files": [
+    { "name": "ファイル名", "type": "patient" | "financial" | "system" | "backup" | "log", "size": "サイズ", "importance": "high" | "medium" | "low" }
+  ]
+}
+
+以下のルールに従ってください:
+- 8〜12個のファイルを生成
+- typeは patient, financial, system, backup, log のいずれか
+- importance: high が3〜4個、medium が2〜3個、low が2〜3個
+- backupタイプのファイルを必ず1つ以上含める
+- ストーリーコンテキストに合わせた具体的なファイル名にする
+- sizeは現実的な値にする（例: "2.4GB", "45MB", "4KB"）`;
+}
+
 export function buildRansomwareEvalPrompt(
   encryptedTargets: string[],
   ransomNote: string

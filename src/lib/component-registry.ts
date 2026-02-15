@@ -5,6 +5,9 @@ import dynamic from 'next/dynamic';
 export interface GameComponentProps {
   storyContext: StoryContext;
   previousContext: Record<string, unknown>;
+  previousResults: PhaseResult[];
+  phaseId: string;
+  componentId: string;
   onComplete: (
     result: Omit<PhaseResult, 'componentId' | 'phaseId' | 'completedAt'>
   ) => void;

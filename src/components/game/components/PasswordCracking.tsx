@@ -17,9 +17,9 @@ interface TargetProfile {
 }
 
 type AttackMode = 'manual' | 'dictionary' | 'bruteforce';
-type Phase = 'profile' | 'attack' | 'cracking' | 'done';
+type Phase = 'loading' | 'profile' | 'attack' | 'cracking' | 'done';
 
-const defaultProfile: TargetProfile = {
+const fallbackProfile: TargetProfile = {
   name: '佐藤花子',
   birthday: '1990-03-15',
   petName: 'モモ',
@@ -29,14 +29,13 @@ const defaultProfile: TargetProfile = {
   hometown: '横浜',
 };
 
-const correctPasswords = ['momo0315', 'hanako1990', 'yokohama315'];
+const fallbackPasswords = ['momo0315', 'hanako1990', 'yokohama315'];
 
-const dictionaryList = [
+const defaultDummyList = [
   'password123',
   '123456',
   'qwerty',
   'admin',
-  'momo0315',
   'letmein',
   'welcome1',
   'abc123',
@@ -44,14 +43,82 @@ const dictionaryList = [
 
 export default function PasswordCracking({
   storyContext,
+  phaseId,
+  componentId,
+  previousResults,
   onComplete,
 }: GameComponentProps) {
-  const [phase, setPhase] = useState<Phase>('profile');
+  const [phase, setPhase] = useState<Phase>('loading');
+  const [profile, setProfile] = useState<TargetProfile>(fallbackProfile);
+  const [correctPasswords, setCorrectPasswords] = useState<string[]>(fallbackPasswords);
+  const [dictionaryList, setDictionaryList] = useState<string[]>([]);
   const [mode, setMode] = useState<AttackMode>('manual');
   const [input, setInput] = useState('');
   const [attempts, setAttempts] = useState<string[]>([]);
   const [terminalLines, setTerminalLines] = useState<string[]>([]);
   const terminalRef = useRef<HTMLDivElement>(null);
+
+  // Fetch scenario from API on mount
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchScenario() {
+      try {
+        const res = await fetch(`/api/game/phase/${phaseId}/action`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            componentId,
+            action: 'init',
+            storyContext,
+            previousResults,
+          }),
+        });
+
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (data.profile) {
+          setProfile({
+            name: data.profile.name || fallbackProfile.name,
+            birthday: data.profile.birthday || fallbackProfile.birthday,
+            petName: data.profile.petName || fallbackProfile.petName,
+            hobby: data.profile.hobby || fallbackProfile.hobby,
+            favoriteTeam: data.profile.favoriteTeam || fallbackProfile.favoriteTeam,
+            partnerName: data.profile.partnerName || fallbackProfile.partnerName,
+            hometown: data.profile.hometown || fallbackProfile.hometown,
+          });
+        }
+
+        if (data.passwords && Array.isArray(data.passwords)) {
+          const pws = data.passwords.map(
+            (p: { password: string }) => p.password
+          );
+          setCorrectPasswords(pws);
+          // Build dictionary: correct passwords mixed into dummy list
+          const shuffled = [...defaultDummyList, ...pws].sort(
+            () => Math.random() - 0.5
+          );
+          setDictionaryList(shuffled);
+        } else {
+          setDictionaryList([...defaultDummyList, ...fallbackPasswords].sort(() => Math.random() - 0.5));
+        }
+
+        setPhase('profile');
+      } catch {
+        if (cancelled) return;
+        setDictionaryList([...defaultDummyList, ...fallbackPasswords].sort(() => Math.random() - 0.5));
+        setPhase('profile');
+      }
+    }
+
+    fetchScenario();
+    return () => {
+      cancelled = true;
+    };
+  }, [storyContext, phaseId, componentId, previousResults]);
 
   useEffect(() => {
     if (terminalRef.current) {
@@ -199,6 +266,23 @@ export default function PasswordCracking({
     }, 500);
   };
 
+  if (phase === 'loading') {
+    return (
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <div className="text-center">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
+          />
+          <p className="font-mono text-sm text-cyber-cyan">
+            LOADING SCENARIO...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="mx-auto max-w-md px-4 py-6">
       <AnimatePresence mode="wait">
@@ -225,23 +309,23 @@ export default function PasswordCracking({
             <div className="mb-6 rounded-lg border border-white/10 bg-cyber-card p-4">
               <div className="mb-3 flex items-center gap-3">
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyber-magenta/20 font-mono text-lg text-cyber-magenta">
-                  {defaultProfile.name.charAt(0)}
+                  {profile.name.charAt(0)}
                 </div>
                 <div>
-                  <p className="font-bold text-white">{defaultProfile.name}</p>
+                  <p className="font-bold text-white">{profile.name}</p>
                   <p className="text-xs text-gray-500">
-                    @{defaultProfile.name.toLowerCase().replace(/\s/g, '')}
+                    @{profile.name.toLowerCase().replace(/\s/g, '')}
                   </p>
                 </div>
               </div>
               <dl className="space-y-1.5 text-sm">
                 {[
-                  ['誕生日', defaultProfile.birthday],
-                  ['ペット', defaultProfile.petName],
-                  ['趣味', defaultProfile.hobby],
-                  ['推しチーム', defaultProfile.favoriteTeam],
-                  ['パートナー', defaultProfile.partnerName],
-                  ['出身', defaultProfile.hometown],
+                  ['誕生日', profile.birthday],
+                  ['ペット', profile.petName],
+                  ['趣味', profile.hobby],
+                  ['推しチーム', profile.favoriteTeam],
+                  ['パートナー', profile.partnerName],
+                  ['出身', profile.hometown],
                 ].map(([label, value]) => (
                   <div key={label} className="flex gap-2">
                     <dt className="text-gray-500">{label}:</dt>

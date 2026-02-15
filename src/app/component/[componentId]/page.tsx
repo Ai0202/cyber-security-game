@@ -74,6 +74,9 @@ export default function PracticePage() {
             <GameComponent
               storyContext={defaultContext}
               previousContext={{}}
+              previousResults={[]}
+              phaseId="practice"
+              componentId={params.componentId}
               onComplete={handleComplete}
             />
           </motion.div>
