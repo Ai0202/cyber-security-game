@@ -1,5 +1,5 @@
 // Phase IDs
-export type PhaseId = 'recon' | 'credential' | 'intrusion' | 'objective';
+export type PhaseId = 'recon' | 'access' | 'lateral' | 'objective';
 
 // Difficulty levels
 export type Difficulty = 'easy' | 'normal' | 'hard';
@@ -45,6 +45,10 @@ export interface ComponentDefinition {
   difficulty: Difficulty;
   estimatedMinutes: number;
   learningPoints: string[];
+  tags: string[];
+  attacker_action: string;
+  victim_experience: string;
+  vulnerability: string;
 }
 
 // --- Phase metadata ---
@@ -85,4 +89,20 @@ export interface GameSession {
   phaseResults: PhaseResult[];
   status: SessionStatus;
   startedAt: Date;
+}
+
+// --- Connection templates ---
+
+export interface ConnectionTemplate {
+  from: string;
+  to: string;
+  transition: string;
+}
+
+// --- Dynamic generated story ---
+
+export interface GeneratedStory extends StoryDefinition {
+  isGenerated: true;
+  generatedAt: string;
+  componentChain: string[];
 }

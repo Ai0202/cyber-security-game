@@ -7,24 +7,28 @@ import { getPhase, getComponent } from '@/lib/data';
 interface PhaseTransitionProps {
   componentId: string;
   phaseIndex: number;
+  narrativeText?: string;
   onComplete: () => void;
 }
 
 export default function PhaseTransition({
   componentId,
   phaseIndex,
+  narrativeText,
   onComplete,
 }: PhaseTransitionProps) {
   const [show, setShow] = useState(true);
   const component = getComponent(componentId);
   const phase = component ? getPhase(component.phaseId) : null;
 
+  const displayDuration = narrativeText ? 3500 : 2000;
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false);
-    }, 2000);
+    }, displayDuration);
     return () => clearTimeout(timer);
-  }, []);
+  }, [displayDuration]);
 
   return (
     <AnimatePresence onExitComplete={onComplete}>
@@ -56,7 +60,7 @@ export default function PhaseTransition({
             ))}
           </div>
 
-          <div className="relative text-center">
+          <div className="relative max-w-sm px-6 text-center">
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -81,11 +85,28 @@ export default function PhaseTransition({
             >
               {component?.name}
             </motion.p>
+
+            {/* Narrative text from connection template */}
+            {narrativeText && (
+              <motion.p
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 }}
+                className="mt-4 text-xs leading-relaxed text-cyber-cyan/80"
+              >
+                {narrativeText}
+              </motion.p>
+            )}
+
             {/* Loading bar */}
             <motion.div
               initial={{ scaleX: 0 }}
               animate={{ scaleX: 1 }}
-              transition={{ delay: 0.5, duration: 1.5, ease: 'linear' }}
+              transition={{
+                delay: 0.5,
+                duration: (displayDuration - 500) / 1000,
+                ease: 'linear',
+              }}
               className="mx-auto mt-6 h-px w-48 origin-left bg-cyber-green/50"
             />
           </div>

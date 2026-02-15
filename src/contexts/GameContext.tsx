@@ -7,12 +7,13 @@ import {
   useMemo,
   useState,
 } from 'react';
-import type { GameSession, PhaseResult } from '@/types';
-import { getStory, getComponent, getPhase } from '@/lib/data';
+import type { GameSession, PhaseResult, StoryContext } from '@/types';
+import { getStory, getComponent, getPhase, phases, components } from '@/lib/data';
 import {
   createSession,
   advancePhase,
   getAccumulatedContext,
+  generateSessionId,
 } from '@/lib/session';
 
 interface GameContextValue {
@@ -21,6 +22,7 @@ interface GameContextValue {
 
   // Actions
   startStory: (storyId: string) => void;
+  startRandomMission: () => Promise<void>;
   completePhase: (
     result: Omit<PhaseResult, 'componentId' | 'phaseId' | 'completedAt'>
   ) => void;
@@ -53,6 +55,53 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const startRandomMission = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Select one random component per phase
+      const selectedComponents = phases.map((phase) => {
+        const pool = components.filter((c) => c.phaseId === phase.id);
+        return pool[Math.floor(Math.random() * pool.length)].id;
+      });
+
+      // Try to generate story context via API
+      let storyContext: StoryContext;
+      try {
+        const res = await fetch('/api/game/generate-story', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ componentChain: selectedComponents }),
+        });
+        if (!res.ok) throw new Error('API error');
+        const data = await res.json();
+        storyContext = data.context;
+      } catch {
+        // Fallback context
+        storyContext = {
+          industry: '一般企業',
+          targetOrg: 'テクノコーポレーション',
+          targetDescription: '中規模のIT企業。従業員300名。セキュリティ対策は標準的。',
+          objective: '企業の機密情報を窃取し、組織に最大限のダメージを与える',
+        };
+      }
+
+      const newSession: GameSession = {
+        id: generateSessionId(),
+        storyId: 'random-mission',
+        selectedComponents,
+        storyContext,
+        currentPhaseIndex: 0,
+        phaseResults: [],
+        status: 'in_progress',
+        startedAt: new Date(),
+      };
+
+      setSession(newSession);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const completePhase = useCallback(
     (
       result: Omit<PhaseResult, 'componentId' | 'phaseId' | 'completedAt'>
@@ -60,11 +109,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setSession((prev) => {
         if (!prev) return prev;
 
-        const story = getStory(prev.storyId);
-        if (!story) return prev;
-
-        const phaseId = story.phases[prev.currentPhaseIndex].phaseId;
         const componentId = prev.selectedComponents[prev.currentPhaseIndex];
+        const component = getComponent(componentId);
+        const phaseId = component?.phaseId ?? phases[prev.currentPhaseIndex]?.id ?? 'recon';
 
         const fullResult: PhaseResult = {
           ...result,
@@ -97,16 +144,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       };
     }
 
-    const story = getStory(session.storyId);
-    const currentPhaseId =
-      story?.phases[session.currentPhaseIndex]?.phaseId ?? null;
     const currentComponentId =
       session.selectedComponents[session.currentPhaseIndex] ?? null;
-
-    const phase = currentPhaseId ? getPhase(currentPhaseId) : null;
     const component = currentComponentId
       ? getComponent(currentComponentId)
       : null;
+    const currentPhaseId = component?.phaseId ?? null;
+    const phase = currentPhaseId ? getPhase(currentPhaseId) : null;
 
     const totalScore =
       session.phaseResults.length > 0
@@ -132,6 +176,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     session,
     isLoading,
     startStory,
+    startRandomMission,
     completePhase,
     resetSession,
     ...derived,

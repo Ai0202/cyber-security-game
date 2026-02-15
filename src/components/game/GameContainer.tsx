@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useGame } from '@/contexts/GameContext';
 import { getGameComponent } from '@/lib/component-registry';
+import { getConnection } from '@/lib/data';
 import PhaseTimeline from '@/components/story/PhaseTimeline';
 import PhaseTransition from '@/components/game/PhaseTransition';
 import type { PhaseResult } from '@/types';
@@ -22,6 +23,17 @@ export default function GameContainer() {
     completePhase,
   } = useGame();
   const [gamePhase, setGamePhase] = useState<GamePhase>('transition');
+
+  // Get narrative text from connection template for phase transitions
+  const narrativeText = useMemo(() => {
+    const idx = session?.currentPhaseIndex ?? 0;
+    if (!session || idx === 0) return undefined;
+    const prevComponentId = session.selectedComponents[idx - 1];
+    const currComponentId = session.selectedComponents[idx];
+    if (!prevComponentId || !currComponentId) return undefined;
+    const connection = getConnection(prevComponentId, currComponentId);
+    return connection?.transition;
+  }, [session]);
 
   const handleTransitionComplete = useCallback(() => {
     setGamePhase('playing');
@@ -76,6 +88,7 @@ export default function GameContainer() {
         <PhaseTransition
           componentId={currentComponentId}
           phaseIndex={session.currentPhaseIndex}
+          narrativeText={narrativeText}
           onComplete={handleTransitionComplete}
         />
       )}
