@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { GameComponentProps } from '@/lib/component-registry';
 import CyberButton from '@/components/ui/CyberButton';
 import NeonBadge from '@/components/ui/NeonBadge';
+import ScenarioLoading from './ScenarioLoading';
 
 interface NetworkNode {
   id: string;
@@ -288,79 +289,69 @@ export default function NetworkIntrusion({
 
   const finishGame = () => {
     setPhase('done');
-    const exploredCount = nodes.filter((n) => n.explored).length;
-    const isAdmin = true; // will be admin after escalate
 
-    const score = Math.min(100,
-      20 + // initial login
-      Math.min(30, exploredCount * 6) + // exploration
-      (isAdmin ? 25 : 0) + // escalation
-      Math.floor(stealthLevel * 0.25) // stealth
-    );
+    setTimeout(() => {
+      const exploredCount = nodes.filter((n) => n.explored).length;
+      const isAdmin = true; // will be admin after escalate
 
-    onComplete({
-      score,
-      rank:
-        score >= 90
-          ? 'S'
-          : score >= 70
-            ? 'A'
-            : score >= 50
-              ? 'B'
-              : score >= 30
-                ? 'C'
-                : 'D',
-      breakdown: [
-        {
-          category: '初期侵入',
-          points: 20,
-          maxPoints: 20,
-          comment: 'ログイン成功',
+      const score = Math.min(100,
+        20 + // initial login
+        Math.min(30, exploredCount * 6) + // exploration
+        (isAdmin ? 25 : 0) + // escalation
+        Math.floor(stealthLevel * 0.25) // stealth
+      );
+
+      onComplete({
+        score,
+        rank:
+          score >= 90
+            ? 'S'
+            : score >= 70
+              ? 'A'
+              : score >= 50
+                ? 'B'
+                : score >= 30
+                  ? 'C'
+                  : 'D',
+        breakdown: [
+          {
+            category: '初期侵入',
+            points: 20,
+            maxPoints: 20,
+            comment: 'ログイン成功',
+          },
+          {
+            category: '偵察',
+            points: Math.min(30, exploredCount * 6),
+            maxPoints: 30,
+            comment: `${exploredCount}ノードを探索`,
+          },
+          {
+            category: '権限昇格',
+            points: isAdmin ? 25 : 0,
+            maxPoints: 25,
+            comment: isAdmin ? '管理者権限取得' : '権限昇格未実施',
+          },
+          {
+            category: 'ステルス維持',
+            points: Math.floor(stealthLevel * 0.25),
+            maxPoints: 25,
+            comment: `ステルス残: ${stealthLevel}%`,
+          },
+        ],
+        contextOutput: {
+          accessLevel: 'admin',
+          discoveredServers: nodes
+            .filter((n) => n.explored)
+            .map((n) => n.name),
+          stealthLevel,
         },
-        {
-          category: '偵察',
-          points: Math.min(30, exploredCount * 6),
-          maxPoints: 30,
-          comment: `${exploredCount}ノードを探索`,
-        },
-        {
-          category: '権限昇格',
-          points: isAdmin ? 25 : 0,
-          maxPoints: 25,
-          comment: isAdmin ? '管理者権限取得' : '権限昇格未実施',
-        },
-        {
-          category: 'ステルス維持',
-          points: Math.floor(stealthLevel * 0.25),
-          maxPoints: 25,
-          comment: `ステルス残: ${stealthLevel}%`,
-        },
-      ],
-      contextOutput: {
-        accessLevel: 'admin',
-        discoveredServers: nodes
-          .filter((n) => n.explored)
-          .map((n) => n.name),
-        stealthLevel,
-      },
-    });
+      });
+    }, 3000);
   };
 
   if (phase === 'loading') {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
-          />
-          <p className="font-mono text-sm text-cyber-cyan">
-            LOADING SCENARIO...
-          </p>
-        </div>
-      </div>
-    );
+    return <ScenarioLoading />;
   }
 
   return (

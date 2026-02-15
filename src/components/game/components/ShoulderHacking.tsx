@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { GameComponentProps } from '@/lib/component-registry';
 import NeonBadge from '@/components/ui/NeonBadge';
+import ScenarioLoading from './ScenarioLoading';
 
 interface HiddenInfo {
   id: string;
@@ -166,73 +167,77 @@ export default function ShoulderHacking({
     return () => clearInterval(timer);
   }, [phase]);
 
-  // Finish game when phase changes to done
+  // Finish game when phase changes to done (3s delay)
   useEffect(() => {
     if (phase !== 'done') return;
 
-    const foundItems = items.filter((i) => i.found);
-    const totalPoints = foundItems.reduce((sum, i) => sum + i.points, 0);
-    const timeBonus = timeLeft > 0 ? 10 : 0;
-    const score = Math.min(100, totalPoints + timeBonus);
+    const timeout = setTimeout(() => {
+      const foundItems = items.filter((i) => i.found);
+      const totalPoints = foundItems.reduce((sum, i) => sum + i.points, 0);
+      const timeBonus = timeLeft > 0 ? 10 : 0;
+      const score = Math.min(100, totalPoints + timeBonus);
 
-    const contextOutput: Record<string, unknown> = {};
-    foundItems.forEach((item) => {
-      if (item.type === 'email') contextOutput['discoveredEmail'] = item.value;
-      if (item.type === 'password')
-        contextOutput['passwordHint'] = item.value;
-      if (item.type === 'business')
-        contextOutput['internalUrl'] = item.value;
-    });
+      const contextOutput: Record<string, unknown> = {};
+      foundItems.forEach((item) => {
+        if (item.type === 'email') contextOutput['discoveredEmail'] = item.value;
+        if (item.type === 'password')
+          contextOutput['passwordHint'] = item.value;
+        if (item.type === 'business')
+          contextOutput['internalUrl'] = item.value;
+      });
 
-    onComplete({
-      score,
-      rank:
-        score >= 90
-          ? 'S'
-          : score >= 70
-            ? 'A'
-            : score >= 50
-              ? 'B'
-              : score >= 30
-                ? 'C'
-                : 'D',
-      breakdown: [
-        {
-          category: 'パスワード発見',
-          points: foundItems.find((i) => i.type === 'password') ? 30 : 0,
-          maxPoints: 30,
-          comment: foundItems.find((i) => i.type === 'password')
-            ? '付箋のパスワードを発見'
-            : '見逃し',
-        },
-        {
-          category: '個人情報発見',
-          points: foundItems.find((i) => i.type === 'personal') ? 20 : 0,
-          maxPoints: 20,
-          comment: foundItems.find((i) => i.type === 'personal')
-            ? '患者リストを発見'
-            : '見逃し',
-        },
-        {
-          category: '業務機密発見',
-          points: foundItems.filter((i) =>
-            ['email', 'business'].includes(i.type)
-          ).length * 20,
-          maxPoints: 45,
-          comment: `${foundItems.filter((i) => ['email', 'business'].includes(i.type)).length}件の業務情報を発見`,
-        },
-        {
-          category: '時間ボーナス',
-          points: timeBonus,
-          maxPoints: 10,
-          comment:
-            timeBonus > 0
-              ? `残り${timeLeft}秒でクリア`
-              : 'タイムアップ',
-        },
-      ],
-      contextOutput,
-    });
+      onComplete({
+        score,
+        rank:
+          score >= 90
+            ? 'S'
+            : score >= 70
+              ? 'A'
+              : score >= 50
+                ? 'B'
+                : score >= 30
+                  ? 'C'
+                  : 'D',
+        breakdown: [
+          {
+            category: 'パスワード発見',
+            points: foundItems.find((i) => i.type === 'password') ? 30 : 0,
+            maxPoints: 30,
+            comment: foundItems.find((i) => i.type === 'password')
+              ? '付箋のパスワードを発見'
+              : '見逃し',
+          },
+          {
+            category: '個人情報発見',
+            points: foundItems.find((i) => i.type === 'personal') ? 20 : 0,
+            maxPoints: 20,
+            comment: foundItems.find((i) => i.type === 'personal')
+              ? '患者リストを発見'
+              : '見逃し',
+          },
+          {
+            category: '業務機密発見',
+            points: foundItems.filter((i) =>
+              ['email', 'business'].includes(i.type)
+            ).length * 20,
+            maxPoints: 45,
+            comment: `${foundItems.filter((i) => ['email', 'business'].includes(i.type)).length}件の業務情報を発見`,
+          },
+          {
+            category: '時間ボーナス',
+            points: timeBonus,
+            maxPoints: 10,
+            comment:
+              timeBonus > 0
+                ? `残り${timeLeft}秒でクリア`
+                : 'タイムアップ',
+          },
+        ],
+        contextOutput,
+      });
+    }, 3000);
+
+    return () => clearTimeout(timeout);
   }, [phase, items, timeLeft, onComplete]);
 
   const handleItemClick = useCallback(
@@ -257,20 +262,7 @@ export default function ShoulderHacking({
   );
 
   if (phase === 'loading') {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
-          />
-          <p className="font-mono text-sm text-cyber-cyan">
-            LOADING SCENARIO...
-          </p>
-        </div>
-      </div>
-    );
+    return <ScenarioLoading />;
   }
 
   return (
