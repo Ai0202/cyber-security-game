@@ -39,13 +39,17 @@ export default function GameContainer() {
     setGamePhase('playing');
   }, []);
 
+  const [lastScore, setLastScore] = useState<number | null>(null);
+
   const handlePhaseComplete = useCallback(
     (result: Omit<PhaseResult, 'componentId' | 'phaseId' | 'completedAt'>) => {
+      setLastScore(result.score);
       setGamePhase('phase-complete');
       setTimeout(() => {
         completePhase(result);
+        setLastScore(null);
         setGamePhase('transition');
-      }, 3000);
+      }, 5000);
     },
     [completePhase]
   );
@@ -106,7 +110,7 @@ export default function GameContainer() {
               <motion.p
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
+                transition={{ duration: 0.6 }}
                 className="font-mono text-2xl font-bold tracking-wider text-cyber-green"
               >
                 PHASE COMPLETE
@@ -114,9 +118,28 @@ export default function GameContainer() {
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ delay: 0.3, duration: 1.5, ease: 'linear' }}
+                transition={{ delay: 0.4, duration: 2.5, ease: 'linear' }}
                 className="mx-auto mt-4 h-px w-48 origin-left bg-cyber-green/50"
               />
+              {lastScore !== null && (
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2, duration: 0.5 }}
+                  className="mt-6 font-mono text-4xl font-bold text-cyber-green"
+                >
+                  {lastScore}
+                  <span className="text-lg text-gray-500"> / 100</span>
+                </motion.p>
+              )}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 2.5, duration: 0.5 }}
+                className="mt-3 font-mono text-xs text-gray-500"
+              >
+                NEXT PHASE LOADING...
+              </motion.p>
             </div>
           </motion.div>
         )}

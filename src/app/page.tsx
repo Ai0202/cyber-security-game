@@ -15,7 +15,7 @@ export default function Home() {
       {/* Header */}
       <div className="mb-10 text-center">
         <h1 className="font-mono text-4xl font-bold tracking-wider text-cyber-green">
-          CyberGuardians
+          せきゅトレ
         </h1>
         <p className="mt-2 text-sm text-gray-400">
           攻撃者の目線で学ぶ、サイバーセキュリティ体験学習

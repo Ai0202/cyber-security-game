@@ -4,7 +4,7 @@ import { buildStoryContextPrompt } from './common';
 export function buildPasswordCrackingSystemPrompt(
   context: StoryContext
 ): string {
-  return `あなたはサイバーセキュリティ教育ゲーム「CyberGuardians」のパスワードクラッキングシナリオを管理するAIです。
+  return `あなたはサイバーセキュリティ教育ゲーム「せきゅトレ」のパスワードクラッキングシナリオを管理するAIです。
 
 ${buildStoryContextPrompt(context)}
 

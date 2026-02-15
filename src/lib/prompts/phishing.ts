@@ -2,7 +2,7 @@ import type { StoryContext } from '@/types';
 import { buildStoryContextPrompt } from './common';
 
 export function buildPhishingSystemPrompt(context: StoryContext): string {
-  return `あなたはサイバーセキュリティ教育ゲーム「CyberGuardians」のフィッシング攻撃シナリオを管理するAIです。
+  return `あなたはサイバーセキュリティ教育ゲーム「せきゅトレ」のフィッシング攻撃シナリオを管理するAIです。
 
 ${buildStoryContextPrompt(context)}
 

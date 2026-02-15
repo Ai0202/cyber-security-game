@@ -4,7 +4,7 @@ import { buildStoryContextPrompt } from './common';
 export function buildNetworkIntrusionSystemPrompt(
   context: StoryContext
 ): string {
-  return `あなたはサイバーセキュリティ教育ゲーム「CyberGuardians」のネットワーク侵入シナリオを管理するAIです。
+  return `あなたはサイバーセキュリティ教育ゲーム「せきゅトレ」のネットワーク侵入シナリオを管理するAIです。
 
 ${buildStoryContextPrompt(context)}
 
