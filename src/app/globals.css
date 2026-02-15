@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+:root {
+  --color-cyber-bg: #0a0a1a;
+  --color-cyber-card: #1a1a2e;
+  --color-cyber-green: #00ff88;
+  --color-cyber-magenta: #ff00ff;
+  --color-cyber-cyan: #00d4ff;
+}
+
+body {
+  background-color: var(--color-cyber-bg);
+  color: #e0e0e0;
+  min-height: 100vh;
+}

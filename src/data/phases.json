@@ -1,0 +1,30 @@
+[
+  {
+    "id": "recon",
+    "name": "情報収集",
+    "displayName": "RECONNAISSANCE",
+    "description": "ターゲットの情報を集める",
+    "order": 0
+  },
+  {
+    "id": "credential",
+    "name": "認証窃取",
+    "displayName": "CREDENTIAL THEFT",
+    "description": "ID/パスワード等を手に入れる",
+    "order": 1
+  },
+  {
+    "id": "intrusion",
+    "name": "侵入",
+    "displayName": "INTRUSION",
+    "description": "システムに侵入・権限昇格",
+    "order": 2
+  },
+  {
+    "id": "objective",
+    "name": "目的達成",
+    "displayName": "OBJECTIVE",
+    "description": "最終目的を遂行",
+    "order": 3
+  }
+]
