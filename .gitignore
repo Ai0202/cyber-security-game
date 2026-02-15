@@ -1,12 +1,10 @@
-# Python
-.venv/
-__pycache__/
-*.pyc
-*.pyo
-
 # Node
 node_modules/
 dist/
+
+# Next.js
+.next/
+out/
 
 # Environment / Secrets
 .env
@@ -21,3 +19,10 @@ dist/
 .vscode/
 .idea/
 *.sw?
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+!*.tfvars.example
