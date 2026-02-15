@@ -25,3 +25,10 @@ out/
 .vscode/
 .idea/
 *.sw?
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+!*.tfvars.example
