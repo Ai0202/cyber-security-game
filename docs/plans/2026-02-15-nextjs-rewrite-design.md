@@ -2,11 +2,11 @@
 
 ## 概要
 
-現在のReact+Vite (フロントエンド) + FastAPI (バックエンド) 構成を、Next.js 15 App Router によるフルスタック TypeScript アプリケーションに書き換える。
+現在のReact+Vite (フロントエンド) + FastAPI (バックエンド) 構成を、Next.js 16 App Router によるフルスタック TypeScript アプリケーションに書き換える。
 
 ## 決定事項
 
-- **フレームワーク**: Next.js 15 (App Router)
+- **フレームワーク**: Next.js 16 (App Router)
 - **言語**: TypeScript
 - **スタイリング**: Tailwind CSS
 - **アプローチ**: Server Components + Client Components ハイブリッド
@@ -80,7 +80,7 @@ cyber-security-game/
 
 | カテゴリ | 技術 |
 |---------|------|
-| フレームワーク | Next.js 15 (App Router) |
+| フレームワーク | Next.js 16 (App Router) |
 | 言語 | TypeScript |
 | スタイリング | Tailwind CSS |
 | AI連携 | Google Gemini API (`@google/generative-ai`) |
