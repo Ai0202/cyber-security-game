@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { GameComponentProps } from '@/lib/component-registry';
 import CyberButton from '@/components/ui/CyberButton';
 import NeonBadge from '@/components/ui/NeonBadge';
+import ScenarioLoading from './ScenarioLoading';
 
 interface FileItem {
   id: string;
@@ -153,87 +154,76 @@ export default function Ransomware({
   const handleSubmitNote = () => {
     setPhase('done');
 
-    const targetScore = Math.min(
-      30,
-      selectedFiles.filter((f) => f.importance === 'high').length * 10 +
-        selectedFiles.filter((f) => f.importance === 'medium').length * 5
-    );
-    const backupScore = hasBackup ? 25 : 5;
-    const noteScore = ransomNote.length > 30 ? 18 : ransomNote.length > 10 ? 12 : 5;
+    setTimeout(() => {
+      const targetScore = Math.min(
+        30,
+        selectedFiles.filter((f) => f.importance === 'high').length * 10 +
+          selectedFiles.filter((f) => f.importance === 'medium').length * 5
+      );
+      const backupScore = hasBackup ? 25 : 5;
+      const noteScore = ransomNote.length > 30 ? 18 : ransomNote.length > 10 ? 12 : 5;
 
-    const stealth =
-      typeof previousContext.stealthLevel === 'number'
-        ? Math.floor((previousContext.stealthLevel as number) * 0.25)
-        : 15;
+      const stealth =
+        typeof previousContext.stealthLevel === 'number'
+          ? Math.floor((previousContext.stealthLevel as number) * 0.25)
+          : 15;
 
-    const score = Math.min(100, targetScore + backupScore + noteScore + stealth);
+      const score = Math.min(100, targetScore + backupScore + noteScore + stealth);
 
-    onComplete({
-      score,
-      rank:
-        score >= 90
-          ? 'S'
-          : score >= 70
-            ? 'A'
-            : score >= 50
-              ? 'B'
-              : score >= 30
-                ? 'C'
-                : 'D',
-      breakdown: [
-        {
-          category: '暗号化対象の選択',
-          points: targetScore,
-          maxPoints: 30,
-          comment: `${selectedFiles.length}ファイル（重要度高: ${selectedFiles.filter((f) => f.importance === 'high').length}件）`,
+      onComplete({
+        score,
+        rank:
+          score >= 90
+            ? 'S'
+            : score >= 70
+              ? 'A'
+              : score >= 50
+                ? 'B'
+                : score >= 30
+                  ? 'C'
+                  : 'D',
+        breakdown: [
+          {
+            category: '暗号化対象の選択',
+            points: targetScore,
+            maxPoints: 30,
+            comment: `${selectedFiles.length}ファイル（重要度高: ${selectedFiles.filter((f) => f.importance === 'high').length}件）`,
+          },
+          {
+            category: 'バックアップ無効化',
+            points: backupScore,
+            maxPoints: 25,
+            comment: hasBackup
+              ? 'バックアップファイルも暗号化'
+              : 'バックアップを見逃し - 復旧可能',
+          },
+          {
+            category: '脅迫文の巧妙さ',
+            points: noteScore,
+            maxPoints: 20,
+            comment:
+              noteScore >= 15
+                ? '具体的で効果的な脅迫文'
+                : '脅迫文の改善余地あり',
+          },
+          {
+            category: 'ステルス維持',
+            points: stealth,
+            maxPoints: 25,
+            comment: `ステルスレベルに基づく評価`,
+          },
+        ],
+        contextOutput: {
+          encryptedFiles: selectedFiles.map((f) => f.name),
+          backupDestroyed: hasBackup,
+          ransomDemand: ransomNote,
         },
-        {
-          category: 'バックアップ無効化',
-          points: backupScore,
-          maxPoints: 25,
-          comment: hasBackup
-            ? 'バックアップファイルも暗号化'
-            : 'バックアップを見逃し - 復旧可能',
-        },
-        {
-          category: '脅迫文の巧妙さ',
-          points: noteScore,
-          maxPoints: 20,
-          comment:
-            noteScore >= 15
-              ? '具体的で効果的な脅迫文'
-              : '脅迫文の改善余地あり',
-        },
-        {
-          category: 'ステルス維持',
-          points: stealth,
-          maxPoints: 25,
-          comment: `ステルスレベルに基づく評価`,
-        },
-      ],
-      contextOutput: {
-        encryptedFiles: selectedFiles.map((f) => f.name),
-        backupDestroyed: hasBackup,
-        ransomDemand: ransomNote,
-      },
-    });
+      });
+    }, 3000);
   };
 
   if (phase === 'loading') {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
-          />
-          <p className="font-mono text-sm text-cyber-cyan">
-            LOADING SCENARIO...
-          </p>
-        </div>
-      </div>
-    );
+    return <ScenarioLoading />;
   }
 
   return (

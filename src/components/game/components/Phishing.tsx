@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { GameComponentProps } from '@/lib/component-registry';
+import type { ScoreBreakdown } from '@/types';
 import CyberButton from '@/components/ui/CyberButton';
 import NeonBadge from '@/components/ui/NeonBadge';
+import ScenarioLoading from './ScenarioLoading';
 
 interface TargetInfo {
   name: string;
@@ -97,7 +99,7 @@ export default function Phishing({
     // Simulate evaluation
     setTimeout(() => {
       let totalScore = 0;
-      const breakdown = [];
+      const breakdown: ScoreBreakdown[] = [];
 
       // Sender disguise (0-25)
       const senderScore =
@@ -169,45 +171,34 @@ export default function Phishing({
 
       setPhase('result');
 
-      onComplete({
-        score: totalScore,
-        rank:
-          totalScore >= 90
-            ? 'S'
-            : totalScore >= 70
-              ? 'A'
-              : totalScore >= 50
-                ? 'B'
-                : totalScore >= 30
-                  ? 'C'
-                  : 'D',
-        breakdown,
-        contextOutput: {
-          phishingSuccess: totalScore >= 50,
-          stolenCredentials:
-            totalScore >= 50
-              ? { email: target.email, password: 'P@ssw0rd123' }
-              : null,
-        },
-      });
+      setTimeout(() => {
+        onComplete({
+          score: totalScore,
+          rank:
+            totalScore >= 90
+              ? 'S'
+              : totalScore >= 70
+                ? 'A'
+                : totalScore >= 50
+                  ? 'B'
+                  : totalScore >= 30
+                    ? 'C'
+                    : 'D',
+          breakdown,
+          contextOutput: {
+            phishingSuccess: totalScore >= 50,
+            stolenCredentials:
+              totalScore >= 50
+                ? { email: target.email, password: 'P@ssw0rd123' }
+                : null,
+          },
+        });
+      }, 3000);
     }, 2000);
   };
 
   if (phase === 'loading') {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
-          />
-          <p className="font-mono text-sm text-cyber-cyan">
-            LOADING SCENARIO...
-          </p>
-        </div>
-      </div>
-    );
+    return <ScenarioLoading />;
   }
 
   return (

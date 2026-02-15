@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { GameComponentProps } from '@/lib/component-registry';
 import CyberButton from '@/components/ui/CyberButton';
 import NeonBadge from '@/components/ui/NeonBadge';
+import ScenarioLoading from './ScenarioLoading';
 
 interface TargetProfile {
   name: string;
@@ -137,64 +138,66 @@ export default function PasswordCracking({
   };
 
   const finishGame = (attemptCount: number, usedMode: AttackMode) => {
-    let score: number;
-    if (usedMode === 'manual') {
-      if (attemptCount === 1) score = 100;
-      else if (attemptCount <= 3) score = 70;
-      else score = 40;
-    } else if (usedMode === 'dictionary') {
-      score = 20;
-    } else {
-      score = 10;
-    }
+    setTimeout(() => {
+      let score: number;
+      if (usedMode === 'manual') {
+        if (attemptCount === 1) score = 100;
+        else if (attemptCount <= 3) score = 70;
+        else score = 40;
+      } else if (usedMode === 'dictionary') {
+        score = 20;
+      } else {
+        score = 10;
+      }
 
-    const modeLabel =
-      usedMode === 'manual'
-        ? '手動推測'
-        : usedMode === 'dictionary'
-          ? '辞書攻撃'
-          : '総当たり';
+      const modeLabel =
+        usedMode === 'manual'
+          ? '手動推測'
+          : usedMode === 'dictionary'
+            ? '辞書攻撃'
+            : '総当たり';
 
-    onComplete({
-      score,
-      rank:
-        score >= 90
-          ? 'S'
-          : score >= 70
-            ? 'A'
-            : score >= 50
-              ? 'B'
-              : score >= 30
-                ? 'C'
-                : 'D',
-      breakdown: [
-        {
-          category: '攻撃手法',
-          points: usedMode === 'manual' ? 30 : usedMode === 'dictionary' ? 15 : 5,
-          maxPoints: 30,
-          comment: `${modeLabel}を使用`,
+      onComplete({
+        score,
+        rank:
+          score >= 90
+            ? 'S'
+            : score >= 70
+              ? 'A'
+              : score >= 50
+                ? 'B'
+                : score >= 30
+                  ? 'C'
+                  : 'D',
+        breakdown: [
+          {
+            category: '攻撃手法',
+            points: usedMode === 'manual' ? 30 : usedMode === 'dictionary' ? 15 : 5,
+            maxPoints: 30,
+            comment: `${modeLabel}を使用`,
+          },
+          {
+            category: '試行回数',
+            points: Math.max(0, 40 - (attemptCount - 1) * 10),
+            maxPoints: 40,
+            comment: `${attemptCount}回で突破`,
+          },
+          {
+            category: '推測精度',
+            points: score >= 70 ? 30 : score >= 40 ? 20 : 10,
+            maxPoints: 30,
+            comment:
+              score >= 70
+                ? 'プロフィールからの的確な推測'
+                : '改善の余地あり',
+          },
+        ],
+        contextOutput: {
+          crackedPassword: correctPasswords[0],
+          accountAccess: true,
         },
-        {
-          category: '試行回数',
-          points: Math.max(0, 40 - (attemptCount - 1) * 10),
-          maxPoints: 40,
-          comment: `${attemptCount}回で突破`,
-        },
-        {
-          category: '推測精度',
-          points: score >= 70 ? 30 : score >= 40 ? 20 : 10,
-          maxPoints: 30,
-          comment:
-            score >= 70
-              ? 'プロフィールからの的確な推測'
-              : '改善の余地あり',
-        },
-      ],
-      contextOutput: {
-        crackedPassword: correctPasswords[0],
-        accountAccess: true,
-      },
-    });
+      });
+    }, 3000);
   };
 
   const handleManualAttempt = () => {
@@ -267,20 +270,7 @@ export default function PasswordCracking({
   };
 
   if (phase === 'loading') {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
-            className="mx-auto mb-4 h-8 w-8 rounded-full border-2 border-cyber-cyan border-t-transparent"
-          />
-          <p className="font-mono text-sm text-cyber-cyan">
-            LOADING SCENARIO...
-          </p>
-        </div>
-      </div>
-    );
+    return <ScenarioLoading />;
   }
 
   return (
