@@ -164,15 +164,20 @@ export default function ShoulderHacking({
   const handleItemClick = useCallback(
     (id: string) => {
       if (phase !== 'playing') return;
-      setItems((prev) =>
-        prev.map((item) => {
+      setItems((prev) => {
+        const next = prev.map((item) => {
           if (item.id === id && !item.found) {
-            setFoundCount((c) => c + 1);
             return { ...item, found: true };
           }
           return item;
-        })
-      );
+        });
+        const newFoundCount = next.filter((i) => i.found).length;
+        setFoundCount(newFoundCount);
+        if (newFoundCount === next.length) {
+          setPhase('done');
+        }
+        return next;
+      });
     },
     [phase]
   );
@@ -191,10 +196,13 @@ export default function ShoulderHacking({
             <h2 className="mb-2 font-mono text-xs tracking-widest text-cyber-cyan">
               SHOULDER HACKING
             </h2>
-            <p className="mb-4 text-sm text-gray-400">
-              {storyContext.targetOrg}の待合室。
+            <p className="mb-2 text-sm text-gray-400">
+              {storyContext.targetOrg}の待合室に潜入した。
               <br />
-              ターゲットのPC画面から機密情報を見つけ出せ。
+              職員のPC画面やデスク周りから、侵入の足がかりとなる情報を盗み見ろ。
+            </p>
+            <p className="mb-4 text-xs text-cyber-green/70">
+              ここで得た情報が、次のフェーズでパスワード突破やシステム侵入の手がかりになる。
             </p>
             <p className="mb-6 text-xs text-gray-500">
               制限時間: {TIME_LIMIT}秒 / 画面上の光るポイントをタップして情報を収集

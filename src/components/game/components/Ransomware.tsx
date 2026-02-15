@@ -65,27 +65,29 @@ export default function Ransomware({
   useEffect(() => {
     if (phase !== 'encrypting') return;
 
-    const selected = files.filter((f) => f.selected);
+    const selectedIds = files.filter((f) => f.selected).map((f) => f.id);
     let index = 0;
 
     const interval = setInterval(() => {
-      if (index >= selected.length) {
+      if (index >= selectedIds.length) {
         clearInterval(interval);
         setPhase('ransom');
         return;
       }
 
+      const targetId = selectedIds[index];
       setFiles((prev) =>
         prev.map((f) =>
-          f.id === selected[index].id ? { ...f, encrypted: true } : f
+          f.id === targetId ? { ...f, encrypted: true } : f
         )
       );
-      setEncryptionProgress(((index + 1) / selected.length) * 100);
+      setEncryptionProgress(((index + 1) / selectedIds.length) * 100);
       index++;
     }, 600);
 
     return () => clearInterval(interval);
-  }, [phase, files]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phase]);
 
   const handleSubmitNote = () => {
     setPhase('done');
@@ -170,8 +172,13 @@ export default function Ransomware({
             <h2 className="mb-1 font-mono text-xs tracking-widest text-red-400">
               RANSOMWARE DEPLOYMENT
             </h2>
-            <p className="mb-4 text-sm text-gray-400">
-              暗号化するファイルを選択せよ
+            <p className="mb-2 text-sm text-gray-400">
+              管理者権限で全サーバーにアクセス可能になった。
+              <br />
+              重要なファイルを暗号化し、組織を身代金交渉に追い込め。
+            </p>
+            <p className="mb-4 text-xs text-red-400/70">
+              バックアップまで暗号化すれば、復旧手段を完全に断てる。
             </p>
 
             {Array.isArray(previousContext.discoveredServers) && (
@@ -225,7 +232,7 @@ export default function Ransomware({
               className="w-full"
               disabled={selectedFiles.length === 0}
             >
-              ENCRYPT FILES
+              ファイルを暗号化
             </CyberButton>
           </motion.div>
         )}
