@@ -8,6 +8,10 @@ __pycache__/
 node_modules/
 dist/
 
+# Next.js
+.next/
+out/
+
 # Environment / Secrets
 .env
 .env.local
