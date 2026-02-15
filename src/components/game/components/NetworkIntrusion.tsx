@@ -233,10 +233,15 @@ export default function NetworkIntrusion({
             <h2 className="mb-2 font-mono text-xs tracking-widest text-cyber-cyan">
               NETWORK INTRUSION
             </h2>
-            <p className="mb-4 text-sm text-gray-400">
-              {storyContext.targetOrg}のネットワークに侵入し、権限を昇格せよ
+            <p className="mb-2 text-sm text-gray-400">
+              盗んだ認証情報で{storyContext.targetOrg}のネットワークに接続する。
+              <br />
+              内部を偵察し、管理者権限を奪取せよ。
             </p>
-            <CyberButton onClick={handleLogin}>CONNECT</CyberButton>
+            <p className="mb-4 text-xs text-cyber-green/70">
+              管理者権限を手に入れれば、機密ファイルへのアクセスが可能になる。
+            </p>
+            <CyberButton onClick={handleLogin}>接続</CyberButton>
           </motion.div>
         )}
 

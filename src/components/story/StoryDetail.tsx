@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { useGame } from '@/contexts/GameContext';
 import CyberButton from '@/components/ui/CyberButton';
 import NeonBadge from '@/components/ui/NeonBadge';
-import PhaseTimeline from '@/components/story/PhaseTimeline';
+
 import type { StoryDefinition } from '@/types';
 
 interface StoryDetailProps {
@@ -18,12 +18,6 @@ export default function StoryDetail({ story }: StoryDetailProps) {
 
   const handleStart = () => {
     startStory(story.id);
-  };
-
-  // セッション作成後、play画面へ遷移
-  const hasSession = session?.storyId === story.id && session.status === 'in_progress';
-
-  const handlePlay = () => {
     router.push(`/story/${story.id}/play`);
   };
 
@@ -89,37 +83,16 @@ export default function StoryDetail({ story }: StoryDetailProps) {
           </dl>
         </motion.div>
 
-        {/* Phase Timeline */}
-        {hasSession && session && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mb-8"
-          >
-            <h2 className="mb-4 font-mono text-xs tracking-widest text-cyber-cyan">
-              ATTACK CHAIN
-            </h2>
-            <PhaseTimeline selectedComponents={session.selectedComponents} />
-          </motion.div>
-        )}
-
         {/* Action Button */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.3 }}
           className="text-center"
         >
-          {!hasSession ? (
-            <CyberButton onClick={handleStart} className="w-full">
-              GENERATE MISSION
-            </CyberButton>
-          ) : (
-            <CyberButton onClick={handlePlay} variant="primary" className="w-full">
-              START MISSION
-            </CyberButton>
-          )}
+          <CyberButton onClick={handleStart} variant="primary" className="w-full">
+            ミッションをはじめる
+          </CyberButton>
         </motion.div>
       </motion.div>
     </div>

@@ -213,8 +213,13 @@ export default function PasswordCracking({
             <h2 className="mb-1 font-mono text-xs tracking-widest text-cyber-cyan">
               TARGET SNS PROFILE
             </h2>
-            <p className="mb-4 text-sm text-gray-400">
-              ターゲットのSNS情報からパスワードを推測せよ
+            <p className="mb-2 text-sm text-gray-400">
+              ターゲットのSNSプロフィールを入手した。
+              <br />
+              個人情報からパスワードを推測し、アカウントを乗っ取れ。
+            </p>
+            <p className="mb-4 text-xs text-cyber-green/70">
+              突破したアカウントで、{storyContext.targetOrg}の内部ネットワークにログインできるようになる。
             </p>
 
             <div className="mb-6 rounded-lg border border-white/10 bg-cyber-card p-4">
@@ -254,7 +259,7 @@ export default function PasswordCracking({
               onClick={() => setPhase('attack')}
               className="w-full"
             >
-              START CRACKING
+              攻撃開始
             </CyberButton>
           </motion.div>
         )}

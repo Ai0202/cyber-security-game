@@ -37,7 +37,7 @@ export default function CyberButton({
       disabled={disabled}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className={`rounded border px-6 py-3 font-mono text-sm font-bold tracking-wider transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${variantStyles[variant]} ${className}`}
+      className={`cursor-pointer rounded border px-6 py-3 font-mono text-sm font-bold tracking-wider transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${variantStyles[variant]} ${className}`}
     >
       {children}
     </motion.button>
